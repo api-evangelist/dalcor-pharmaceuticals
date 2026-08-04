@@ -1,0 +1,118 @@
+generated: '2026-08-04'
+method: derived
+source:
+- openapi/dalcor-pharmaceuticals-content-openapi.yml
+- https://dalcorpharma.com/wp-json/wp/v2
+- live response headers observed 2026-08-04 on GET /wp-json/wp/v2/posts
+note: >-
+  Cross-cutting semantics for the DalCor Content API. DalCor publishes no developer documentation of
+  its own; these conventions are those of the WordPress REST API (wp/v2) as deployed on
+  dalcorpharma.com, derived from the site's published namespace route index and verified against
+  live responses. Nothing here is a DalCor product commitment.
+authentication:
+  style: none-for-read
+  detail: >-
+    Every operation modelled in openapi/ returns 200 anonymously. Write and administrative routes on
+    the same namespace require WordPress Application Passwords (HTTP Basic over TLS) or a logged-in
+    cookie plus an X-WP-Nonce header; /wp/v2/settings returns 401 (rest_forbidden) without
+    credentials and /wp/v2/users is blocked at the edge with an HTML 403.
+  ref: authentication/dalcor-pharmaceuticals-authentication.yml
+user_agent:
+  required: true
+  detail: >-
+    The origin sits behind Cloudflare and answers requests with an absent or default User-Agent with
+    HTTP 403. A normal browser User-Agent string is required for every call, including the JSON
+    routes. This is the single most likely reason an agent will fail against this surface.
+idempotency:
+  supported: false
+  detail: >-
+    No idempotency key is accepted or documented. Not applicable in practice — the public contract
+    is read-only (GET), which is idempotent by HTTP method semantics, and there is no unsafe public
+    operation that would need a replay key. No Idempotency pointer is emitted in apis.yml.
+pagination:
+  style: page-number
+  params:
+  - name: page
+    default: 1
+    description: 1-indexed page of the collection.
+  - name: per_page
+    default: 10
+    maximum: 100
+  - name: offset
+    description: Offset the result set by a specific number of items.
+  response_headers:
+  - name: X-WP-Total
+    description: Total number of records matching the query.
+  - name: X-WP-TotalPages
+    description: Total number of pages available.
+  - name: Link
+    description: RFC 8288 link header carrying rel="next" and rel="prev".
+  cors_exposed: [X-WP-Total, X-WP-TotalPages, Link]
+  example: 'GET /wp-json/wp/v2/posts?per_page=2 -> x-wp-total 24, x-wp-totalpages 12, Link rel="next"'
+  out_of_range: 'Paging past X-WP-TotalPages returns 400 rest_post_invalid_page_number.'
+localization:
+  mechanism: WPML
+  param: wpml_language
+  values: [en, fr]
+  detail: >-
+    The site publishes an English and a French edition (/ and /fr/). Every collection in the wp/v2
+    namespace accepts wpml_language. Observed 2026-08-04: en -> 24 posts / 17 pages; fr -> 6 posts /
+    15 pages. Omitting the parameter returns the default (English) edition.
+filtering_and_sorting:
+  search: '`search` free-text parameter on every collection, plus `search_columns` and `search_semantics=exact` on posts/pages/media'
+  ordering: '`order` (asc|desc) + `orderby` (date, id, title, slug, relevance, include, modified, parent, author)'
+  date_windows: [after, before, modified_after, modified_before]
+  taxonomy_filters:
+  - categories / categories_exclude (posts) — only term 13 (press-releases) is populated
+  - tags / tags_exclude (posts) — the tags taxonomy is empty on this site
+  identity_filters: [include, exclude, slug, status]
+  hierarchy_filters: [parent, parent_exclude, menu_order] # pages only
+field_selection:
+  sparse_fieldsets:
+    param: _fields
+    detail: 'Comma-separated list of top-level fields to return, e.g. `_fields=id,title,link,date`.'
+  embedding:
+    param: _embed
+    detail: >-
+      Inlines linked resources (featured media, terms, author) under `_embedded`, avoiding follow-up
+      requests. Author embedding is degraded on this deployment because /wp/v2/users is edge-blocked.
+  content_shape: >-
+    Text fields are objects with a `rendered` key carrying HTML, not plain strings — `title.rendered`,
+    `content.rendered`, `excerpt.rendered`. Agents must strip HTML.
+hypermedia:
+  style: HAL-ish `_links`
+  detail: >-
+    Every record carries `_links` with self, collection, about, author, replies, wp:featuredmedia,
+    wp:attachment, wp:term and curies (rel prefix `wp`, https://api.w.org/{rel}).
+request_tracing:
+  request_id_header: null
+  detail: >-
+    No request-id or correlation header is issued. Cloudflare returns `cf-ray`, which identifies the
+    edge request but is infrastructure, not an API contract.
+versioning:
+  scheme: namespace-in-path
+  current: wp/v2
+  ref: lifecycle/dalcor-pharmaceuticals-lifecycle.yml
+error_envelope:
+  shape: '{code, message, data:{status, params?, details?}}'
+  content_type: application/json
+  rfc9457: false
+  ref: errors/dalcor-pharmaceuticals-problem-types.yml
+rate_limiting:
+  documented: false
+  headers_observed: []
+  detail: >-
+    No RateLimit, X-RateLimit-* or Retry-After headers were observed on any probed route. Cloudflare
+    sits in front of the origin and may apply undocumented edge limits; treat throughput as
+    best-effort and back off on 403/429.
+caching:
+  detail: >-
+    `cf-cache-status: DYNAMIC` on the JSON routes — the REST responses are not edge-cached. No ETag
+    or Last-Modified was returned on the collection routes, so conditional requests are not usable;
+    poll with `modified_after` instead.
+cors:
+  allow_headers: [Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type]
+  expose_headers: [X-WP-Total, X-WP-TotalPages, Link]
+  vary: [Origin, accept-encoding]
+robots:
+  detail: 'JSON routes are served with `x-robots-tag: noindex`.'

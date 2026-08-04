@@ -1,0 +1,120 @@
+generated: '2026-08-04'
+method: derived
+source:
+- openapi/dalcor-pharmaceuticals-content-openapi.yml
+- https://dalcorpharma.com/wp-json/wp/v2/types
+- https://dalcorpharma.com/wp-json/wp/v2/taxonomies
+- live collection probes on 2026-08-04 (record counts from X-WP-Total)
+note: >-
+  Entity graph of the DalCor Content API, derived from the content types and taxonomies the site
+  registers and from the id-reference fields present in live records. Record counts are the
+  X-WP-Total headers observed on 2026-08-04 and will drift. DalCor registers NO custom content types
+  — unlike many pharma sites there is no team, pipeline, publication or event content type. The
+  corporate substance (management, board, partners, science, trial programmes, publications) is
+  authored as ordinary hierarchical Pages, so the entity graph is thin and the interesting structure
+  is in the page hierarchy rather than in typed records.
+identifiers:
+  scheme: integer surrogate key (`id`) per collection, unique within its content type
+  human_key: '`slug`, unique within a content type; the public URL is in `link`'
+  no_prefixes: >-
+    Ids carry no type prefix, so an id is only meaningful together with its collection — an important
+    difference from prefixed-id APIs.
+entities:
+- name: Post
+  collection: /wp/v2/posts
+  operations: [listPosts, getPost]
+  records_observed: 24
+  records_observed_fr: 6
+  description: >-
+    The corporate news stream. Every published post is in the `press-releases` category — trial
+    milestones, financing rounds (including the Series D and the Dal-GenE-2 announcement), scientific
+    presentations and media interviews.
+  key_fields: [id, slug, date, modified, title.rendered, content.rendered, excerpt.rendered, link, categories, tags, featured_media, author]
+- name: Page
+  collection: /wp/v2/pages
+  operations: [listPages, getPage]
+  records_observed: 17
+  records_observed_fr: 15
+  description: >-
+    The whole corporate and scientific site. Hierarchical via `parent`: About DalCor (60) parents
+    Management (75), Board of Directors (110) and Partners (135); Science (403) parents Dalcetrapib
+    History (149), Cardiovascular Diseases (144), Precision Medicine for Cardiovascular Diseases
+    (154) and Publications (159). Top-level siblings carry the clinical programme — dal-GenE trial
+    (293), Dal-GenE-2 trial (594), DAL-302 Study: Information for Clinical Trial Sites (1260) — plus
+    Press Releases (660), Contact Us (298), Privacy Policy (1196), Walgreens Referral Program (1337)
+    and Home (11).
+  key_fields: [id, slug, title.rendered, content.rendered, link, parent, menu_order, featured_media]
+- name: MediaItem
+  collection: /wp/v2/media
+  operations: [listMedia, getMediaItem]
+  records_observed: 54
+  description: >-
+    Media library attachments — the DalCor logo set, site imagery and scientific congress poster
+    assets (e.g. the ACC25 Tardif poster published as both JPEG and PDF).
+  key_fields: [id, slug, title.rendered, link, source_url, media_type, mime_type, alt_text, media_details, post]
+- name: Category
+  collection: /wp/v2/categories
+  operations: [listCategories, getCategory]
+  taxonomy_of: Post
+  hierarchical: true
+  records_observed: 2
+  terms_observed:
+  - {id: 13, name: Press Releases, slug: press-releases, count: 24}
+  - {id: 1, name: Uncategorized, slug: uncategorized, count: 0}
+- name: Comment
+  collection: /wp/v2/comments
+  operations: [listComments]
+  records_observed: 0
+  description: Registered and anonymously readable, but empty — comments are not used on this site.
+- name: SearchResult
+  collection: /wp/v2/search
+  operations: [search]
+  description: >-
+    A projection, not a stored entity — lightweight {id, title, url, type, subtype} records across
+    post, page, elementor_library, e-floating-buttons, category and post_tag subtypes.
+relationships:
+- from: Post
+  to: Category
+  kind: has_many
+  via: categories
+  detail: Array of term ids; in practice always [13].
+- from: Post
+  to: MediaItem
+  kind: has_one
+  via: featured_media
+  detail: 0 when no featured image is set.
+- from: Post
+  to: User
+  kind: belongs_to
+  via: author
+  detail: >-
+    The author id is present on every record but the /wp/v2/users collection is edge-blocked (HTTP
+    403), so the referenced entity is NOT retrievable on this deployment. This is a dangling
+    reference an agent must expect.
+  resolvable: false
+- from: Page
+  to: Page
+  kind: belongs_to
+  via: parent
+  detail: 'Two-level hierarchy: About (60) and Science (403) are the only parents.'
+- from: Page
+  to: MediaItem
+  kind: has_one
+  via: featured_media
+- from: MediaItem
+  to: Post
+  kind: belongs_to
+  via: post
+  detail: The post or page the attachment was uploaded to; 0 when unattached.
+- from: Comment
+  to: Post
+  kind: belongs_to
+  via: post
+absent_entities:
+  note: >-
+    Recorded because their absence is the finding. No custom content type exists for team members,
+    board members, partners, pipeline programmes, clinical trials, publications or events — all of
+    that content is unstructured HTML inside Page.content.rendered. An agent wanting the management
+    roster or the publication list must parse the rendered HTML of pages 75, 110, 135 and 159; there
+    is no typed record to query.
+  candidates_not_registered: [team, publication, event, trial, pipeline, partner]

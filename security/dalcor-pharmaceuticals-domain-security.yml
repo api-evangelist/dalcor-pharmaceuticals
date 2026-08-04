@@ -1,0 +1,51 @@
+generated: '2026-08-04'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+note: >-
+  dalcorpharma.com sits behind Cloudflare and answers a default/absent User-Agent with HTTP 403, so
+  the mechanical probe recorded hsts: null for the site host. A re-probe with a browser User-Agent
+  returned HTTP 200 with `strict-transport-security: max-age=31536000` on both GET and HEAD of the
+  site root — corrected below and recorded with its evidence. developer.wordpress.org is the
+  humanURL host (the upstream WordPress REST handbook), not a DalCor-operated host.
+hosts:
+- host: dalcorpharma.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Sep 27 03:05:17 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+  hsts_includesubdomains: false
+  hsts_preload: false
+  hsts_evidence: 'GET/HEAD https://dalcorpharma.com/ with a browser User-Agent, 2026-08-04 -> 200,
+    strict-transport-security: max-age=31536000'
+  edge: cloudflare
+  other_security_headers:
+  - 'x-content-type-options: nosniff'
+  - 'x-frame-options: DENY'
+  - 'referrer-policy: no-referrer-when-downgrade'
+  - 'permissions-policy: geolocation=(), autoplay=(), camera=(), gyroscope=(), magnetometer=(),
+    microphone=(), payment=()'
+  - 'content-security-policy: default-src https: ''unsafe-inline'' ''self'' data:;'
+  - 'x-xss-protection: 1; mode=block'
+  - 'x-download-options: noopen'
+  - 'cross-origin-resource-policy: cross-origin'
+- host: developer.wordpress.org
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 23 19:43:55 2026 GMT
+  hsts: null
+domains:
+- domain: dalcorpharma.com
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine
+- domain: wordpress.org
+  dnssec: false
+  caa:
+  - 0 issue "letsencrypt.org;validationmethods=dns-01;accounturi=https://acme-v02.api.letsencrypt.org/acme/acct/53691143"
+  - 0 iodef "mailto:caa@wordpress.org"
+  spf: true
+  dmarc: true
+  dmarc_policy: reject

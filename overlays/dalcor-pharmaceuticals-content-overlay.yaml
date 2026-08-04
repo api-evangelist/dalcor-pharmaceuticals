@@ -1,0 +1,68 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the DalCor Pharmaceuticals Content API
+  version: 1.0.0
+extends: openapi/dalcor-pharmaceuticals-content-openapi.yml
+x-generated: '2026-08-04'
+x-method: generated
+x-note: >-
+  Captures the API Evangelist annotations applied on top of the WordPress REST contract DalCor's site
+  publishes. The OpenAPI in openapi/ is itself derived (DalCor publishes no spec), so this overlay
+  records the editorial layer — provenance, agent guidance and the operational gotchas observed while
+  probing — separately from the mechanical derivation, so a later re-derivation does not lose them.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-profile: https://apievangelist.com/providers/dalcor-pharmaceuticals
+    x-apievangelist-derived: true
+    x-apievangelist-provider-published-spec: false
+    x-apievangelist-surface-class: incidental-cms
+    x-apievangelist-note: >-
+      DalCor markets no API. This contract describes the site's own WordPress content surface, which
+      is anonymously readable and therefore a real, callable public API — but it is not a product,
+      carries no support channel, and can change without notice with a WordPress or plugin upgrade.
+- target: $.info
+  update:
+    x-agent-guidance:
+      user_agent_required: >-
+        Send a normal browser User-Agent. The Cloudflare edge answers requests with an absent or
+        default User-Agent with HTTP 403, including on the JSON routes.
+      discovery_entry_point: >-
+        Use GET /wp/v2 for route discovery, NOT GET / — the root index is suppressed on this
+        deployment and returns empty namespaces/routes arrays.
+      html_in_payloads: >-
+        title/content/excerpt are objects with a `rendered` HTML string. Strip HTML before use; the
+        substantive corporate content (management, board, partners, publications) exists only as
+        unstructured HTML inside Page.content.rendered.
+      language: >-
+        Pass wpml_language=en or fr. Omitting it returns the English edition; the French edition is a
+        smaller, separately-maintained set (6 posts vs 24).
+      pagination: 'Read X-WP-Total / X-WP-TotalPages; paging past the last page returns 400.'
+      polling: >-
+        No ETag or Last-Modified on collections. Poll with modified_after rather than conditional
+        requests. The content stream is low-velocity — the most recent post observed was 2024-12-11.
+- target: $.servers[0]
+  update:
+    x-edge: cloudflare
+    x-origin: PHP 8.2 behind Plesk
+- target: $.paths['/wp/v2/posts'].get
+  update:
+    x-apievangelist-note: >-
+      The single collection worth polling. All 24 English posts are in category 13 (press-releases) —
+      trial milestones, financing rounds and scientific presentations.
+- target: $.paths['/wp/v2/pages'].get
+  update:
+    x-apievangelist-note: >-
+      Carries the entire corporate and scientific narrative. Two-level hierarchy: About DalCor (60)
+      parents Management/Board/Partners; Science (403) parents Dalcetrapib History, Cardiovascular
+      Diseases, Precision Medicine and Publications.
+- target: $.components.schemas.Post
+  update:
+    x-apievangelist-note: >-
+      `author` is always populated but never resolvable — /wp/v2/users is blocked at the edge with an
+      HTML 403 on this deployment.
+- target: $.components.schemas.Error
+  update:
+    x-apievangelist-note: >-
+      WordPress envelope, not RFC 9457. The 403 on /wp/v2/users is NOT this shape — it is an HTML
+      block page from the edge. See errors/dalcor-pharmaceuticals-problem-types.yml.

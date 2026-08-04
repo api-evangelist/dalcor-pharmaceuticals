@@ -1,0 +1,1139 @@
+openapi: 3.1.0
+info:
+  title: DalCor Pharmaceuticals Content API (WordPress REST API)
+  version: wp/v2
+  description: >-
+    Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route
+    index the site publishes at https://dalcorpharma.com/wp-json/wp/v2. It exposes DalCor's press
+    releases (posts), the corporate and clinical-programme pages (About DalCor, Management, Board of
+    Directors, Partners, Science, Dalcetrapib History, Precision Medicine, Cardiovascular Diseases,
+    dal-GenE, Dal-GenE-2, DAL-302 study information, Contact Us, Privacy Policy), the media library,
+    the post categories, and cross-content search. Every collection also accepts a `wpml_language`
+    parameter (`en`/`fr`) because the site runs WPML and publishes a French edition at /fr/.
+    DalCor does not run a developer program and publishes no hand-authored specification; this
+    document is a faithful derivation of the routes, parameters and defaults the site itself
+    advertises, restricted to the read operations verified to return HTTP 200 without credentials on
+    2026-08-04. Write operations are registered on the same routes but are authenticated
+    administrative endpoints, not a public API offering, and are deliberately not modelled here.
+  contact:
+    name: DalCor Pharmaceuticals
+    email: info@DalCorpharma.com
+    url: https://dalcorpharma.com/contact-us/
+  x-derived-from: https://dalcorpharma.com/wp-json/wp/v2
+  x-derived-on: '2026-08-04'
+  x-api-evangelist-note: >-
+    Derived by the API Evangelist enrichment pipeline from the provider-published WordPress REST
+    route index; not authored or endorsed by DalCor Pharmaceuticals.
+servers:
+- url: https://dalcorpharma.com/wp-json
+  description: Production
+tags:
+- name: Posts
+  description: DalCor press releases and corporate news
+- name: Pages
+  description: Corporate, science and clinical-trial pages
+- name: Media
+  description: Media library items (logos, poster PDFs/JPEGs, trial imagery)
+- name: Categories
+  description: Post categories
+- name: Comments
+  description: Comments on posts (collection is empty on this site)
+- name: Search
+  description: Cross-content search
+- name: Discovery
+  description: Site index, namespace route index, content types, taxonomies and statuses
+paths:
+  /:
+    get:
+      operationId: getSiteIndex
+      tags:
+      - Discovery
+      summary: Get the REST API site index
+      description: >-
+        Returns the site name, home URL, timezone, site icon and HAL `_links`. On dalcorpharma.com
+        the `namespaces`, `authentication` and `routes` arrays are returned EMPTY — the root index is
+        suppressed by the deployment. The per-namespace index at /wp/v2 is fully published, so
+        discovery works there instead. Observed 2026-08-04.
+      security:
+      - {}
+      responses:
+        '200':
+          description: Site index
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+                  home:
+                    type: string
+                    format: uri
+                  gmt_offset:
+                    type: number
+                  timezone_string:
+                    type: string
+                  namespaces:
+                    type: array
+                    items:
+                      type: string
+                  authentication:
+                    type: array
+                    items:
+                      type: string
+                  routes:
+                    type: object
+                  site_icon_url:
+                    type: string
+                    format: uri
+              example:
+                name: DalCor Pharmaceuticals
+                url: https://dalcorpharma.com
+                home: https://dalcorpharma.com
+                timezone_string: America/Toronto
+                namespaces: []
+                authentication: []
+                routes: {}
+  /wp/v2:
+    get:
+      operationId: getNamespaceIndex
+      tags:
+      - Discovery
+      summary: Get the wp/v2 namespace route index
+      description: >-
+        Returns every route registered in the wp/v2 namespace with its methods, arguments (types,
+        defaults, enums, required flags) and `_links`. 118 routes observed on 2026-08-04. This is the
+        machine-readable contract this OpenAPI was derived from.
+      security:
+      - {}
+      responses:
+        '200':
+          description: Namespace route index
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  namespace:
+                    type: string
+                  routes:
+                    type: object
+  /wp/v2/posts:
+    get:
+      operationId: listPosts
+      tags:
+      - Posts
+      summary: List posts (press releases)
+      description: >-
+        Lists DalCor's corporate news stream. All 24 English posts are in the `press-releases`
+        category (id 13); the French edition carries 6. Returns X-WP-Total / X-WP-TotalPages and an
+        RFC 8288 Link header.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/after'
+      - $ref: '#/components/parameters/before'
+      - $ref: '#/components/parameters/modified_after'
+      - $ref: '#/components/parameters/modified_before'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/slug'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/embed'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: orderby
+        in: query
+        description: Sort collection by post attribute.
+        schema:
+          type: string
+          default: date
+          enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title]
+      - name: categories
+        in: query
+        description: >-
+          Limit result set to posts with specific terms in the categories taxonomy. On this site the
+          only populated category is 13 (Press Releases).
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: categories_exclude
+        in: query
+        description: Exclude posts with specific category terms.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: tags
+        in: query
+        description: Limit result set by tag terms. The tags taxonomy is empty on this site.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: sticky
+        in: query
+        description: Limit result set to sticky posts.
+        schema:
+          type: boolean
+      - name: search_columns
+        in: query
+        description: Columns to search.
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [post_title, post_content, post_excerpt]
+      - name: search_semantics
+        in: query
+        description: How to interpret the search input.
+        schema:
+          type: string
+          enum: [exact]
+      responses:
+        '200':
+          description: A page of posts
+          headers:
+            X-WP-Total:
+              $ref: '#/components/headers/X-WP-Total'
+            X-WP-TotalPages:
+              $ref: '#/components/headers/X-WP-TotalPages'
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+        '401':
+          $ref: '#/components/responses/ForbiddenContext'
+  /wp/v2/posts/{id}:
+    get:
+      operationId: getPost
+      tags:
+      - Posts
+      summary: Get a single post
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/embed'
+      responses:
+        '200':
+          description: A post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          $ref: '#/components/responses/InvalidPostId'
+  /wp/v2/pages:
+    get:
+      operationId: listPages
+      tags:
+      - Pages
+      summary: List pages
+      description: >-
+        Lists the corporate, science and clinical-trial pages. 17 English pages observed on
+        2026-08-04 (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib
+        History, Precision Medicine for Cardiovascular Diseases, Cardiovascular Diseases,
+        Publications, dal-GenE trial, Dal-GenE-2 trial, DAL-302 Study, Press Releases, Contact Us,
+        Privacy Policy, Home, Walgreens Referral Program); 15 in the French edition. Hierarchical
+        via `parent`.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/after'
+      - $ref: '#/components/parameters/before'
+      - $ref: '#/components/parameters/modified_after'
+      - $ref: '#/components/parameters/modified_before'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/slug'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/embed'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: orderby
+        in: query
+        schema:
+          type: string
+          default: date
+          enum: [author, date, id, include, modified, parent, relevance, slug, include_slugs, title, menu_order]
+      - name: parent
+        in: query
+        description: Limit result set to pages with particular parent IDs.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: parent_exclude
+        in: query
+        description: Exclude pages of a particular parent ID.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: menu_order
+        in: query
+        description: Limit result set to pages with a specific menu_order value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: A page of pages
+          headers:
+            X-WP-Total:
+              $ref: '#/components/headers/X-WP-Total'
+            X-WP-TotalPages:
+              $ref: '#/components/headers/X-WP-TotalPages'
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Page'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+  /wp/v2/pages/{id}:
+    get:
+      operationId: getPage
+      tags:
+      - Pages
+      summary: Get a single page
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/embed'
+      responses:
+        '200':
+          description: A page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+        '404':
+          $ref: '#/components/responses/InvalidPostId'
+  /wp/v2/media:
+    get:
+      operationId: listMedia
+      tags:
+      - Media
+      summary: List media library items
+      description: 54 attachments observed on 2026-08-04 — logos, trial poster assets and PDFs.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/after'
+      - $ref: '#/components/parameters/before'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/slug'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: media_type
+        in: query
+        description: Limit result set to attachments of a particular media type.
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [image, video, text, application, audio]
+      - name: mime_type
+        in: query
+        description: Limit result set to attachments of a particular MIME type.
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: A page of media items
+          headers:
+            X-WP-Total:
+              $ref: '#/components/headers/X-WP-Total'
+            X-WP-TotalPages:
+              $ref: '#/components/headers/X-WP-TotalPages'
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaItem'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+  /wp/v2/media/{id}:
+    get:
+      operationId: getMediaItem
+      tags:
+      - Media
+      summary: Get a single media item
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/fields'
+      responses:
+        '200':
+          description: A media item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItem'
+        '404':
+          $ref: '#/components/responses/InvalidPostId'
+  /wp/v2/categories:
+    get:
+      operationId: listCategories
+      tags:
+      - Categories
+      summary: List post categories
+      description: >-
+        Two terms observed on 2026-08-04 — `press-releases` (id 13, 24 posts) and `uncategorized`
+        (id 1, 0 posts).
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/slug'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: order
+        in: query
+        schema:
+          type: string
+          default: asc
+          enum: [asc, desc]
+      - name: orderby
+        in: query
+        schema:
+          type: string
+          default: name
+          enum: [id, include, name, slug, include_slugs, term_group, description, count]
+      - name: hide_empty
+        in: query
+        description: Whether to hide terms not assigned to any posts.
+        schema:
+          type: boolean
+          default: false
+      - name: parent
+        in: query
+        description: Limit result set to terms assigned to a specific parent.
+        schema:
+          type: integer
+      - name: post
+        in: query
+        description: Limit result set to terms assigned to a specific post.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: A page of categories
+          headers:
+            X-WP-Total:
+              $ref: '#/components/headers/X-WP-Total'
+            X-WP-TotalPages:
+              $ref: '#/components/headers/X-WP-TotalPages'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Term'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+  /wp/v2/categories/{id}:
+    get:
+      operationId: getCategory
+      tags:
+      - Categories
+      summary: Get a single category term
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/context'
+      responses:
+        '200':
+          description: A category term
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Term'
+        '404':
+          $ref: '#/components/responses/InvalidTerm'
+  /wp/v2/comments:
+    get:
+      operationId: listComments
+      tags:
+      - Comments
+      summary: List comments
+      description: Registered and anonymously readable, but returns an empty array on this site.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/after'
+      - $ref: '#/components/parameters/before'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: post
+        in: query
+        description: Limit result set to comments assigned to specific post IDs.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: orderby
+        in: query
+        schema:
+          type: string
+          default: date_gmt
+          enum: [date, date_gmt, id, include, post, parent, type]
+      responses:
+        '200':
+          description: A page of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+  /wp/v2/search:
+    get:
+      operationId: search
+      tags:
+      - Search
+      summary: Search across content types
+      description: >-
+        Cross-content search returning lightweight {id, title, url, type, subtype} records. Available
+        subtypes on this site are post, page, e-floating-buttons, elementor_library, category and
+        post_tag.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: context
+        in: query
+        schema:
+          type: string
+          default: view
+          enum: [view, embed]
+      - name: type
+        in: query
+        description: Limit results to items of an object type.
+        schema:
+          type: string
+          default: post
+          enum: [post, term, post-format]
+      - name: subtype
+        in: query
+        description: Limit results to items of one or more object subtypes.
+        schema:
+          type: array
+          default: [any]
+          items:
+            type: string
+            enum: [post, page, e-floating-buttons, elementor_library, category, post_tag, any]
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResult'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+  /wp/v2/types:
+    get:
+      operationId: listTypes
+      tags:
+      - Discovery
+      summary: List registered content types
+      description: >-
+        14 types registered on 2026-08-04 — post, page, attachment plus WordPress and Elementor
+        editorial internals. DalCor registers no custom content types; press releases are a category
+        on `post`.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/wpml_language'
+      responses:
+        '200':
+          description: Content types keyed by slug
+          content:
+            application/json:
+              schema:
+                type: object
+  /wp/v2/types/{type}:
+    get:
+      operationId: getType
+      tags:
+      - Discovery
+      summary: Get a single content type
+      security:
+      - {}
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/context'
+      responses:
+        '200':
+          description: A content type
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          $ref: '#/components/responses/InvalidType'
+  /wp/v2/taxonomies:
+    get:
+      operationId: listTaxonomies
+      tags:
+      - Discovery
+      summary: List registered taxonomies
+      description: category, post_tag, nav_menu and wp_pattern_category observed on 2026-08-04.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - name: type
+        in: query
+        description: Limit results to taxonomies associated with a specific content type.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Taxonomies keyed by slug
+          content:
+            application/json:
+              schema:
+                type: object
+  /wp/v2/taxonomies/{taxonomy}:
+    get:
+      operationId: getTaxonomy
+      tags:
+      - Discovery
+      summary: Get a single taxonomy
+      security:
+      - {}
+      parameters:
+      - name: taxonomy
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/context'
+      responses:
+        '200':
+          description: A taxonomy
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          $ref: '#/components/responses/InvalidTaxonomy'
+  /wp/v2/statuses:
+    get:
+      operationId: listStatuses
+      tags:
+      - Discovery
+      summary: List publicly queryable post statuses
+      description: Only `publish` is exposed anonymously.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      responses:
+        '200':
+          description: Statuses keyed by slug
+          content:
+            application/json:
+              schema:
+                type: object
+  /oembed/1.0/embed:
+    get:
+      operationId: getOembed
+      tags:
+      - Discovery
+      summary: Get the oEmbed representation of a URL on this site
+      description: >-
+        The oembed/1.0 namespace is registered and anonymously readable; the site also advertises
+        the discovery links in its HTML head.
+      security:
+      - {}
+      parameters:
+      - name: url
+        in: query
+        required: true
+        description: The URL of the resource on this site to embed.
+        schema:
+          type: string
+          format: uri
+      - name: format
+        in: query
+        schema:
+          type: string
+          default: json
+          enum: [json, xml]
+      - name: maxwidth
+        in: query
+        schema:
+          type: integer
+          default: 600
+      responses:
+        '200':
+          description: oEmbed document
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  parameters:
+    idPath:
+      name: id
+      in: path
+      required: true
+      description: Unique integer identifier for the object.
+      schema:
+        type: integer
+    context:
+      name: context
+      in: query
+      description: >-
+        Scope under which the request is made; determines fields present in the response. `edit`
+        requires authentication and returns 401 anonymously.
+      schema:
+        type: string
+        default: view
+        enum: [view, embed, edit]
+    page:
+      name: page
+      in: query
+      description: Current page of the collection.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    per_page:
+      name: per_page
+      in: query
+      description: Maximum number of items to be returned in the result set.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    search:
+      name: search
+      in: query
+      description: Limit results to those matching a string.
+      schema:
+        type: string
+    after:
+      name: after
+      in: query
+      description: Limit response to items published after a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    before:
+      name: before
+      in: query
+      description: Limit response to items published before a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    modified_after:
+      name: modified_after
+      in: query
+      description: Limit response to items modified after a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    modified_before:
+      name: modified_before
+      in: query
+      description: Limit response to items modified before a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    exclude:
+      name: exclude
+      in: query
+      description: Ensure the result set excludes specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    include:
+      name: include
+      in: query
+      description: Limit the result set to specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    offset:
+      name: offset
+      in: query
+      description: Offset the result set by a specific number of items.
+      schema:
+        type: integer
+    order:
+      name: order
+      in: query
+      description: Order sort attribute ascending or descending.
+      schema:
+        type: string
+        default: desc
+        enum: [asc, desc]
+    slug:
+      name: slug
+      in: query
+      description: Limit the result set to items with one or more specific slugs.
+      schema:
+        type: array
+        items:
+          type: string
+    fields:
+      name: _fields
+      in: query
+      description: >-
+        Sparse fieldset — comma-separated list of top-level fields to return, e.g.
+        `_fields=id,slug,title,link,date`.
+      schema:
+        type: string
+    embed:
+      name: _embed
+      in: query
+      description: >-
+        Embed linked resources (featured media, terms) inline under `_embedded` instead of requiring
+        follow-up requests.
+      schema:
+        type: string
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: >-
+        WPML language code. The site publishes an English and a French edition; `en` returns 24
+        posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum: [en, fr]
+  headers:
+    X-WP-Total:
+      description: Total number of records matching the query.
+      schema:
+        type: integer
+    X-WP-TotalPages:
+      description: Total number of pages available.
+      schema:
+        type: integer
+    Link:
+      description: RFC 8288 web link header carrying rel="next" and rel="prev".
+      schema:
+        type: string
+  responses:
+    InvalidParam:
+      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_invalid_param
+            message: 'Invalid parameter(s): per_page'
+            data:
+              status: 400
+              params:
+                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
+    InvalidPostId:
+      description: No object with that id exists or it is not public (`rest_post_invalid_id`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_post_invalid_id
+            message: Invalid post ID.
+            data:
+              status: 404
+    InvalidTerm:
+      description: The taxonomy term does not exist (`rest_term_invalid`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_term_invalid
+            message: Term does not exist.
+            data:
+              status: 404
+    InvalidType:
+      description: Invalid content type (`rest_type_invalid`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidTaxonomy:
+      description: Invalid taxonomy (`rest_taxonomy_invalid`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ForbiddenContext:
+      description: '`context=edit` requested anonymously (`rest_forbidden_context`).'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_forbidden_context
+            message: Sorry, you are not allowed to edit posts in this post type.
+            data:
+              status: 401
+  schemas:
+    RenderedText:
+      type: object
+      properties:
+        rendered:
+          type: string
+          description: HTML, rendered for display.
+    Post:
+      type: object
+      description: A press release or corporate news item.
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        date_gmt:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        link:
+          type: string
+          format: uri
+        title:
+          $ref: '#/components/schemas/RenderedText'
+        content:
+          $ref: '#/components/schemas/RenderedText'
+        excerpt:
+          $ref: '#/components/schemas/RenderedText'
+        author:
+          type: integer
+        featured_media:
+          type: integer
+        categories:
+          type: array
+          items:
+            type: integer
+        tags:
+          type: array
+          items:
+            type: integer
+        _links:
+          type: object
+    Page:
+      type: object
+      description: A corporate, science or clinical-trial page.
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        link:
+          type: string
+          format: uri
+        title:
+          $ref: '#/components/schemas/RenderedText'
+        content:
+          $ref: '#/components/schemas/RenderedText'
+        excerpt:
+          $ref: '#/components/schemas/RenderedText'
+        parent:
+          type: integer
+        menu_order:
+          type: integer
+        featured_media:
+          type: integer
+        _links:
+          type: object
+    MediaItem:
+      type: object
+      description: A media library attachment.
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        link:
+          type: string
+          format: uri
+        title:
+          $ref: '#/components/schemas/RenderedText'
+        media_type:
+          type: string
+        mime_type:
+          type: string
+        source_url:
+          type: string
+          format: uri
+        alt_text:
+          type: string
+        media_details:
+          type: object
+        post:
+          type: integer
+        _links:
+          type: object
+    Term:
+      type: object
+      description: A taxonomy term (category).
+      properties:
+        id:
+          type: integer
+        count:
+          type: integer
+        description:
+          type: string
+        link:
+          type: string
+          format: uri
+        name:
+          type: string
+        slug:
+          type: string
+        taxonomy:
+          type: string
+        parent:
+          type: integer
+        _links:
+          type: object
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        type:
+          type: string
+        subtype:
+          type: string
+        _links:
+          type: object
+    Error:
+      type: object
+      description: The WordPress REST error envelope (not RFC 9457 problem+json).
+      properties:
+        code:
+          type: string
+          description: Machine-readable error slug.
+        message:
+          type: string
+          description: Human-readable message, localized to the site language.
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+            params:
+              type: object
+            details:
+              type: object
+  securitySchemes:
+    applicationPassword:
+      type: http
+      scheme: basic
+      description: >-
+        WordPress Application Passwords (RFC 7617 Basic over TLS). Required only for write and
+        administrative routes, which are out of scope for this document — every operation modelled
+        here returns 200 anonymously.
+security:
+- {}

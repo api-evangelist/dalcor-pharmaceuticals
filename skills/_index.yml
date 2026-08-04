@@ -1,0 +1,34 @@
+generated: '2026-08-04'
+method: generated
+source: openapi/dalcor-pharmaceuticals-content-openapi.yml
+note: >-
+  Packaged agent skills for the DalCor Pharmaceuticals Content API. Every step is grounded in an
+  operationId that exists in openapi/dalcor-pharmaceuticals-content-openapi.yml, which is itself
+  derived from the wp/v2 route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2.
+  DalCor publishes no skills of its own and no AGENTS.md (probed 2026-08-04). Each skill carries the
+  two operational gotchas this deployment has — the browser User-Agent requirement and the
+  suppressed root route index — plus accuracy rules for reporting results about an investigational
+  compound.
+skills:
+- file: dalcor-pharmaceuticals-track-press-releases.md
+  name: Track DalCor press releases
+  description: >-
+    Incrementally pull the press-release stream by category with modified_after sync, pagination
+    limits and featured-image resolution.
+  api: openapi/dalcor-pharmaceuticals-content-openapi.yml
+  operations: [listCategories, listPosts, getPost, listMedia, getMediaItem]
+- file: dalcor-pharmaceuticals-clinical-programme-brief.md
+  name: Assemble a DalCor clinical programme brief
+  description: >-
+    Pull the science, dalcetrapib history, precision-medicine rationale and dal-GenE / Dal-GenE-2
+    trial pages plus the leadership and board rosters into one brief, with the accuracy rules an
+    investigational-compound brief needs.
+  api: openapi/dalcor-pharmaceuticals-content-openapi.yml
+  operations: [getNamespaceIndex, listTypes, listPages, getPage, search, listPosts]
+- file: dalcor-pharmaceuticals-bilingual-sync.md
+  name: Sync the DalCor English and French editions
+  description: >-
+    Pull both language editions through the WPML wpml_language parameter, pair translations by slug,
+    and detect where the French edition lags the English one.
+  api: openapi/dalcor-pharmaceuticals-content-openapi.yml
+  operations: [listPages, listPosts, getPage, getPost, listCategories]

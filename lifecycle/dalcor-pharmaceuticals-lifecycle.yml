@@ -1,0 +1,80 @@
+generated: '2026-08-04'
+method: derived
+source:
+- https://dalcorpharma.com/wp-json/wp/v2
+- openapi/dalcor-pharmaceuticals-content-openapi.yml
+- live probes 2026-08-04
+note: >-
+  DalCor publishes no API versioning policy, deprecation policy, SLA, status page or changelog — it
+  runs no developer program. The lifecycle recorded here is that of the underlying WordPress REST
+  namespace as deployed on dalcorpharma.com. Absences below are recorded facts, not omissions, and
+  no StatusPage or Deprecation pointer is emitted in apis.yml because neither exists.
+versioning:
+  scheme: namespace-in-path
+  current: wp/v2
+  routes_published: 118
+  routes_source: https://dalcorpharma.com/wp-json/wp/v2
+  policy_url: null
+  docs: https://developer.wordpress.org/rest-api/
+  namespaces_observed: [wp/v2, oembed/1.0, wp-site-health/v1, yoast/v1, elementor/v1]
+  namespace_discovery_note: >-
+    The root index at /wp-json/ returns EMPTY `namespaces` and `routes` arrays on this deployment, so
+    the namespace list above was established by probing each candidate directly rather than read off
+    the index. Only wp/v2 and oembed/1.0 carry public content routes; yoast/v1, elementor/v1 and
+    wp-site-health/v1 are plugin/administrative surfaces.
+  note: >-
+    A version change would arrive as a new namespace segment (wp/v3). Because the version is that of
+    upstream WordPress rather than of DalCor, DalCor exercises no editorial control over the
+    contract and gives no notice of change.
+deprecation:
+  policy_url: null
+  sunset_header: false
+  deprecation_header: false
+  evidence: No Sunset or Deprecation response headers observed on any probed route.
+deprecated_operations: []
+sla:
+  url: null
+  uptime_target: null
+status_page:
+  url: null
+  evidence: >-
+    status.dalcorpharma.com does not resolve (dig, 2026-08-04) and no status page is linked from
+    dalcorpharma.com. The site is fronted by Cloudflare and served by PHP 8.2 behind Plesk, whose own
+    status pages are third-party infrastructure, not a DalCor commitment, so no StatusPage pointer is
+    emitted.
+changelog:
+  api_changelog_url: null
+  press_releases: https://dalcorpharma.com/press-releases/
+  feed: https://dalcorpharma.com/feed/
+  latest_post_observed: '2024-12-11'
+  note: >-
+    The company publishes dated press releases but no API changelog, so no changelog/ artifact and no
+    ChangeLog pointer is emitted. The news stream is itself readable through this API via listPosts
+    filtered on category 13. The most recent post observed on 2026-08-04 was dated 2024-12-11 — the
+    content surface is low-velocity.
+programme_milestones:
+  note: >-
+    Not an API lifecycle — recorded because it is the lifecycle that matters for this company and is
+    stated on its own public pages.
+  dal_gene_301: Completed. Primary composite endpoint not statistically significant (HR 0.88, p=0.12);
+    21% relative risk reduction in fatal and non-fatal MI (HR 0.79, p=0.02) in 6,149 patients.
+  dal_gene_2_302: >-
+    Phase 3 confirmatory trial in 2,000 post-ACS patients with the ADCY9 AA genotype, coordinated by
+    the Montreal Health Innovations Coordinating Centre. First patient expected Q3 2023, interim
+    efficacy analysis in 2026, completion anticipated 2027 (as published on the company's
+    Dal-GenE-2 trial page).
+support:
+  channel: https://dalcorpharma.com/contact-us/
+  email: info@DalCorpharma.com
+  offices:
+  - {country: Canada, address: '2001 Boulevard Robert Bourassa, Suite 1700, Montreal, QC H3A 2A6', phone: '+1 514-508-5099'}
+  - {country: Switzerland, address: 'Baarerstrasse 2, 6302 Zug', phone: '+41 41 727 67 89'}
+  - {country: United Kingdom, address: 'Q3, the Square, Randalls Way, Leatherhead, KT22 7TW', phone: '+44 207-842-2275'}
+  - {country: United States, address: '677 N. Washington Blvd., Suite 132, Sarasota, Florida 34236', phone: '+1 941-952-5843'}
+  note: >-
+    This is the corporate contact channel, not an API support channel. No developer support surface
+    exists.
+terms:
+  terms_of_service: null
+  evidence: '/terms and /terms-of-use/ both return 404; the site publishes a Privacy Policy but no terms of use.'
+  privacy_policy: https://dalcorpharma.com/privacy-policy/

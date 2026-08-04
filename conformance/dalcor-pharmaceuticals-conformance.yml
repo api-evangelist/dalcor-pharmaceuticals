@@ -1,0 +1,107 @@
+generated: '2026-08-04'
+method: derived
+source:
+- openapi/dalcor-pharmaceuticals-content-openapi.yml
+- conventions/dalcor-pharmaceuticals-conventions.yml
+- security/dalcor-pharmaceuticals-domain-security.yml
+- well-known/dalcor-pharmaceuticals-well-known.yml
+- live probes of https://dalcorpharma.com on 2026-08-04
+note: >-
+  DalCor Pharmaceuticals is a clinical-stage biopharmaceutical company, not an API provider. It
+  publishes no compliance program, no trust center and no certifications on its public site, and it
+  makes no standards claims about the WordPress REST surface behind dalcorpharma.com. Everything
+  below is derived from what was observed; `conforms: false` here means "not observed", not "audited
+  and failed". No `Compliance` pointer is emitted in apis.yml because no compliance program is
+  published. Note that the regulated-industry frameworks a pharma company actually operates under
+  (GCP/ICH-E6 for its trials, HIPAA/GDPR for subject data, 21 CFR Part 11 for records) govern its
+  clinical systems, which are not public and are not this surface — no claim is made about them.
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: >-
+    openapi/dalcor-pharmaceuticals-content-openapi.yml is a valid OpenAPI 3.1.0 document — but it was
+    derived by API Evangelist from the site's WordPress route index, not published by DalCor.
+  published_by_provider: false
+- id: rest
+  conforms: true
+  evidence: Resource-oriented JSON over HTTPS with GET semantics and HAL-style _links per record.
+- id: rfc8288-web-linking
+  conforms: true
+  evidence: 'Collection responses return a Link header with rel="next"/"prev" (observed on /wp/v2/posts).'
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    Errors use the WordPress envelope {code,message,data.status} with content-type application/json,
+    not application/problem+json. See errors/dalcor-pharmaceuticals-problem-types.yml.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: '/.well-known/security.txt and /security.txt both return 404 (probed 2026-08-04).'
+- id: rfc8615-well-known
+  conforms: false
+  evidence: >-
+    No /.well-known/ document is served; api-catalog, ai-plugin.json, agent-card.json and agent.json
+    all return the site's HTML 404.
+- id: oauth2
+  conforms: false
+  evidence: 'No oauth2 securityScheme; /.well-known/oauth-authorization-server returns 404.'
+- id: oidc
+  conforms: false
+  evidence: /.well-known/openid-configuration returns 404.
+- id: rfc7617-basic-auth
+  conforms: true
+  evidence: >-
+    WordPress Application Passwords use HTTP Basic over TLS for the authenticated (out-of-scope)
+    routes; /wp/v2/users/{id}/application-passwords is registered in the namespace route index.
+  scope: administrative routes only — the public read surface is anonymous
+- id: rfc9331-ratelimit-headers
+  conforms: false
+  evidence: No RateLimit or X-RateLimit-* headers observed on any route.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation headers observed; no deprecation policy published.
+- id: idempotency-key
+  conforms: false
+  evidence: No idempotency key accepted; the public contract is read-only.
+- id: cursor-pagination
+  conforms: false
+  evidence: Pagination is page-number based (page/per_page) with X-WP-Total/X-WP-TotalPages.
+- id: rfc6797-hsts
+  conforms: true
+  evidence: 'strict-transport-security: max-age=31536000 observed on https://dalcorpharma.com/ (2026-08-04). No includeSubDomains, no preload.'
+- id: tls-1.3
+  conforms: true
+  evidence: TLSv1.3 negotiated on dalcorpharma.com (probed 2026-08-04).
+- id: dnssec
+  conforms: false
+  evidence: No DNSSEC on dalcorpharma.com (dig, 2026-08-04).
+- id: caa
+  conforms: false
+  evidence: No CAA records on dalcorpharma.com.
+- id: spf
+  conforms: true
+  evidence: SPF record present on dalcorpharma.com.
+- id: dmarc
+  conforms: true
+  evidence: 'DMARC present with policy p=quarantine (not reject).'
+- id: oembed-1.0
+  conforms: true
+  evidence: >-
+    The oembed/1.0 namespace is registered and anonymously readable, and the site advertises oEmbed
+    discovery links (JSON and XML) in its HTML head.
+- id: rss-2.0
+  conforms: true
+  evidence: 'https://dalcorpharma.com/feed/ returns 200 application/rss+xml (RSS 2.0).'
+- id: sitemaps-org
+  conforms: true
+  evidence: 'https://dalcorpharma.com/sitemap_index.xml returns 200 text/xml (Yoast SEO sitemap index).'
+- id: llms-txt
+  conforms: false
+  evidence: /llms.txt returns 404; no agent-directed content contract is published.
+- id: a2a-agent-card
+  conforms: false
+  evidence: >-
+    Both /.well-known/agent-card.json and the legacy /.well-known/agent.json return the site's HTML
+    404. No agent card exists, so no a2a/ artifact is written.
+- id: mcp
+  conforms: false
+  evidence: No MCP server is published or referenced anywhere on the site or in any registry.

@@ -1,18 +1,82 @@
 aid: dalcor-pharmaceuticals
 name: DalCor Pharmaceuticals
-description: 'DalCor Pharmaceuticals is a company surfaced via the API Evangelist harvest backlog (source:
-  secondary-market) and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  DalCor Pharmaceuticals is a clinical-stage biopharmaceutical company founded in 2015 and
+  headquartered in Montreal, Quebec, with offices in Zug, Switzerland, Leatherhead in the United
+  Kingdom, and Sarasota, Florida. It is developing dalcetrapib, positioned as the first
+  pharmacogenetic precision medicine in cardiovascular disease, targeted specifically at patients
+  carrying the AA genotype at the rs1967309 variant of the ADCY9 gene — a genotype present in up to
+  20% of the general population and in more than 40% of populations of African ancestry. DalCor holds
+  the worldwide exclusive license to develop, manufacture and commercialise dalcetrapib together with
+  rights to the companion genetic marker. The compound is being evaluated in Dal-GenE-2 (DAL-302), a
+  Phase 3 double-blind randomized placebo-controlled cardiovascular outcomes confirmatory trial in
+  2,000 post-acute-coronary-syndrome patients with the ADCY9 AA genotype, coordinated by the Montreal
+  Health Innovations Coordinating Centre and following the dal-GenE (DAL-301) trial, which showed a
+  21% relative risk reduction in fatal and non-fatal myocardial infarction across 6,149 patients in
+  34 countries. DalCor runs no developer program and publishes no product API; the only
+  machine-readable surface it exposes is the anonymously readable WordPress REST content API behind
+  dalcorpharma.com, which serves the bilingual English/French corporate site.
+image: https://dalcorpharma.com/kicmeefo/2023/09/dalcor-logo.png
 url: https://raw.githubusercontent.com/api-evangelist/dalcor-pharmaceuticals/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enriched
 specificationVersion: '0.20'
 created: '2026-08-04'
 modified: '2026-08-04'
 tags:
 - Company
-apis: []
+- pharmaceuticals
+- biotechnology
+- cardiovascular
+- precision-medicine
+- pharmacogenomics
+- clinical-trials
+- life-sciences
+- content-api
+apis:
+- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-content-api
+  name: DalCor Pharmaceuticals Content API
+  description: >-
+    The anonymously readable WordPress REST API behind dalcorpharma.com. It exposes DalCor's press
+    releases (posts, all in the press-releases category), the corporate and clinical-programme pages
+    (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib History, Precision
+    Medicine for Cardiovascular Diseases, Cardiovascular Diseases, Publications, dal-GenE trial,
+    Dal-GenE-2 trial, DAL-302 study information for clinical trial sites, Contact Us, Privacy
+    Policy), the media library, the post categories, and cross-content search — in both the English
+    and French editions via the WPML wpml_language parameter. This is not a developer product DalCor
+    markets; it is the site's own content surface, registered at /wp-json/ and verified to return
+    data without credentials. The OpenAPI in this repo is derived from the published wp/v2 route
+    index.
+  humanURL: https://developer.wordpress.org/rest-api/
+  baseURL: https://dalcorpharma.com/wp-json
+  tags:
+  - content
+  - press-releases
+  - wordpress
+  - multilingual
+  properties:
+  - type: OpenAPI
+    url: openapi/dalcor-pharmaceuticals-content-openapi.yml
+  - type: Overlay
+    url: overlays/dalcor-pharmaceuticals-content-overlay.yaml
+  - type: Authentication
+    url: authentication/dalcor-pharmaceuticals-authentication.yml
+  - type: ErrorCatalog
+    url: errors/dalcor-pharmaceuticals-problem-types.yml
+  - type: Conventions
+    url: conventions/dalcor-pharmaceuticals-conventions.yml
+  - type: DataModel
+    url: data-model/dalcor-pharmaceuticals-data-model.yml
+  x-contract-provenance: >-
+    Derived by the API Evangelist enrichment pipeline from the WordPress REST route index the site
+    publishes at https://dalcorpharma.com/wp-json/wp/v2 and verified against live anonymous responses
+    on 2026-08-04. Note that the root index at /wp-json/ returns empty namespaces/routes arrays on
+    this deployment — discovery works at the namespace index instead. DalCor publishes no developer
+    documentation, no API reference and no support channel for this surface, so no
+    Documentation/APIReference/GettingStarted pointers are emitted; the humanURL above is the
+    upstream WordPress REST handbook that describes the wp/v2 contract.
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -20,4 +84,55 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
+  url: https://dalcorpharma.com/
+- type: About
+  url: https://dalcorpharma.com/about/
+- type: Management
+  url: https://dalcorpharma.com/about/management/
+- type: BoardOfDirectors
+  url: https://dalcorpharma.com/about/board-of-directors/
+- type: Partners
+  url: https://dalcorpharma.com/about/partners/
+- type: Science
+  url: https://dalcorpharma.com/science/cardiovascular-diseases/
+- type: Publications
+  url: https://dalcorpharma.com/science/publications/
+- type: PressReleases
+  url: https://dalcorpharma.com/press-releases/
+- type: BlogRSS
+  url: https://dalcorpharma.com/feed/
+- type: Contact
+  url: https://dalcorpharma.com/contact-us/
+- type: Support
+  url: https://dalcorpharma.com/contact-us/
+- type: PrivacyPolicy
+  url: https://dalcorpharma.com/privacy-policy/
+- type: LinkedIn
+  url: https://www.linkedin.com/company/dalcor-pharmaceuticals/
+- type: SecondaryMarket
   url: https://forgeglobal.com/dalcor-pharmaceuticals_stock/
+- type: Authentication
+  url: authentication/dalcor-pharmaceuticals-authentication.yml
+- type: Conventions
+  url: conventions/dalcor-pharmaceuticals-conventions.yml
+- type: Conformance
+  url: conformance/dalcor-pharmaceuticals-conformance.yml
+- type: ErrorCatalog
+  url: errors/dalcor-pharmaceuticals-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/dalcor-pharmaceuticals-lifecycle.yml
+- type: DataModel
+  url: data-model/dalcor-pharmaceuticals-data-model.yml
+- type: WellKnown
+  url: well-known/dalcor-pharmaceuticals-well-known.yml
+- type: DomainSecurity
+  url: security/dalcor-pharmaceuticals-domain-security.yml
+- type: LLMsTxt
+  url: llms/dalcor-pharmaceuticals-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-08-04'
+  status: enriched
+  artifacts_added: 15
+  pass: local-v1

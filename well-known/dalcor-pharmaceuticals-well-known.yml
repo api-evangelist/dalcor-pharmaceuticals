@@ -1,0 +1,75 @@
+generated: '2026-08-04'
+method: probed
+source: live GET probes of https://dalcorpharma.com/.well-known/* and related discovery paths
+host: https://dalcorpharma.com
+note: >-
+  dalcorpharma.com is the only DalCor-operated host in this repo — it is both the website and the
+  base host of the WordPress REST content API at /wp-json. Every RFC 8615 discovery path below was
+  probed anonymously with a browser User-Agent on 2026-08-04 and none is served: the site answers
+  each with its own WordPress 404 page (HTML, status 404), so these are genuine absences and not a
+  200 catch-all false positive. No subdomains resolve for api., developer., docs., status. or
+  trust.dalcorpharma.com (dig, 2026-08-04). The A2A agent-card probes missed at both the canonical
+  and the legacy path, so no a2a/ artifact is written.
+documents:
+- path: /.well-known/security.txt
+  status: 404
+  content_type: text/html
+- path: /security.txt
+  status: 404
+  content_type: text/html
+- path: /.well-known/openid-configuration
+  status: 404
+  content_type: text/html
+- path: /.well-known/oauth-authorization-server
+  status: 404
+  content_type: text/html
+- path: /.well-known/api-catalog
+  status: 404
+  content_type: text/html
+- path: /.well-known/ai-plugin.json
+  status: 404
+  content_type: text/html
+- path: /.well-known/agent-card.json
+  status: 404
+  content_type: text/html
+- path: /.well-known/agent.json
+  status: 404
+  content_type: text/html
+- path: /llms.txt
+  status: 404
+  content_type: text/html
+- path: /openapi.json
+  status: 404
+  content_type: text/html
+- path: /openapi.yaml
+  status: 404
+  content_type: text/html
+- path: /swagger.json
+  status: 404
+  content_type: text/html
+- path: /api-docs
+  status: 404
+  content_type: text/html
+served:
+- path: /robots.txt
+  status: 200
+  content_type: text/plain
+  note: 'Disallows only the HTTrack site-copier User-Agent; no crawler or AI-agent directives.'
+- path: /sitemap_index.xml
+  status: 200
+  content_type: text/xml
+  note: Yoast SEO sitemap index.
+- path: /feed/
+  status: 200
+  content_type: application/rss+xml
+  note: RSS 2.0 feed of the press-release stream.
+- path: /wp-json/
+  status: 200
+  content_type: application/json
+  note: >-
+    WordPress REST site index. Returns empty `namespaces`, `authentication` and `routes` arrays on
+    this deployment — the root index is suppressed, so route discovery must use the namespace index.
+- path: /wp-json/wp/v2
+  status: 200
+  content_type: application/json
+  note: 'Full wp/v2 namespace route index, 118 routes — the contract openapi/ was derived from.'

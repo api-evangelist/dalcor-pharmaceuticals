@@ -1,0 +1,15 @@
+generated: '2026-08-04'
+method: derived
+source: openapi/dalcor-pharmaceuticals-content-openapi.yml
+summary:
+  types:
+  - http
+schemes:
+- name: applicationPassword
+  type: http
+  scheme: basic
+  description: WordPress Application Passwords (RFC 7617 Basic over TLS). Required only for
+    write and administrative routes, which are out of scope for this document — every operation
+    modelled here returns 200 anonymously.
+  sources:
+  - openapi/dalcor-pharmaceuticals-content-openapi.yml

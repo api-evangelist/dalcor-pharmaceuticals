@@ -1,0 +1,114 @@
+generated: '2026-08-04'
+method: probed
+source:
+- openapi/dalcor-pharmaceuticals-content-openapi.yml
+- live error probes against https://dalcorpharma.com/wp-json/wp/v2/* on 2026-08-04
+format: wordpress-rest
+rfc9457: false
+note: >-
+  The DalCor Content API returns the WordPress REST error envelope, not RFC 9457
+  application/problem+json. Every entry below was observed live and is recorded with the exact code,
+  message and status the API returned; nothing is asserted from documentation DalCor does not
+  publish. One entry (rest_edge_blocked) is not a WordPress error at all — it is the edge/WAF
+  answering before WordPress does, and it is recorded because an agent will encounter it.
+envelope:
+  content_type: application/json
+  fields:
+    code: machine-readable error slug, stable across WordPress releases
+    message: human-readable message, localized to the site language (en/fr via WPML)
+    data.status: HTTP status code, duplicated inside the body
+    data.params: per-parameter validation messages (validation errors only)
+    data.details: per-parameter structured detail incl. a nested code (validation errors only)
+problems:
+- code: rest_no_route
+  status: 404
+  title: No route was found matching the URL and request method
+  cause: The path or method is not registered in the wp/v2 namespace.
+  remediation: >-
+    Read the namespace index at GET /wp-json/wp/v2 (operationId getNamespaceIndex) for the valid
+    routes. Do NOT rely on GET /wp-json/ — this deployment returns an empty routes object there.
+  observed: 'GET /wp-json/wp/v2/nope; GET /wp-json/wp/v2/press-release; GET /wp-json/wp/v2/publication'
+- code: rest_post_invalid_id
+  status: 404
+  title: Invalid post ID
+  cause: No record with that id exists in the requested collection, or it is not public.
+  remediation: List the collection first and use an id from the response.
+  observed: >-
+    GET /wp-json/wp/v2/posts/999999, GET /wp-json/wp/v2/pages/999999,
+    GET /wp-json/wp/v2/media/999999
+  source_operations: [getPost, getPage, getMediaItem]
+- code: rest_term_invalid
+  status: 404
+  title: Term does not exist
+  cause: No taxonomy term with that id exists.
+  remediation: >-
+    List the taxonomy first — only two category terms exist on this site (13 press-releases,
+    1 uncategorized).
+  observed: GET /wp-json/wp/v2/categories/999999
+  source_operations: [getCategory]
+- code: rest_invalid_param
+  status: 400
+  title: Invalid parameter(s)
+  cause: A query parameter is out of range or not one of the allowed enum values.
+  remediation: >-
+    Read data.params and data.details for the exact constraint; the nested code (e.g.
+    rest_out_of_bounds) names the rule. Parameter ranges and enums are all in the OpenAPI.
+  observed: >-
+    GET /wp-json/wp/v2/posts?per_page=999 (per_page must be between 1 and 100);
+    GET /wp-json/wp/v2/posts?orderby=bogus (orderby is not one of author, date, id, include,
+    modified, parent, relevance, slug, include_slugs, and title)
+  source_operations: [listPosts, listPages, listMedia, listCategories, listComments, search]
+- code: rest_post_invalid_page_number
+  status: 400
+  title: The page number requested is larger than the number of pages available
+  cause: Paging past X-WP-TotalPages.
+  remediation: Read X-WP-TotalPages from the first response and stop there, or follow Link rel="next".
+  observed: GET /wp-json/wp/v2/posts?page=9999
+  source_operations: [listPosts, listPages, listMedia]
+- code: rest_forbidden_context
+  status: 401
+  title: Not allowed to edit posts in this post type
+  cause: Requesting context=edit anonymously.
+  remediation: Use context=view (the default) or context=embed; edit context requires authentication.
+  observed: GET /wp-json/wp/v2/posts?context=edit
+  source_operations: [listPosts, listPages, listMedia]
+- code: rest_forbidden
+  status: 401
+  title: Not allowed to do that
+  cause: An administrative route was called without credentials.
+  remediation: Out of scope for the public read surface; do not call administrative routes.
+  observed: GET /wp-json/wp/v2/settings
+- code: rest_type_invalid
+  status: 404
+  title: Invalid post type
+  cause: The requested content type is not registered.
+  remediation: List the registered types first via GET /wp-json/wp/v2/types (operationId listTypes).
+  observed: GET /wp-json/wp/v2/types/nope
+  source_operations: [getType]
+- code: rest_taxonomy_invalid
+  status: 404
+  title: Invalid taxonomy
+  cause: The requested taxonomy is not registered.
+  remediation: List the registered taxonomies via GET /wp-json/wp/v2/taxonomies.
+  observed: GET /wp-json/wp/v2/taxonomies/nope
+  source_operations: [getTaxonomy]
+- code: rest_status_invalid
+  status: 404
+  title: Invalid status
+  cause: The requested post status is not registered or not publicly queryable.
+  remediation: Only `publish` is exposed anonymously; see GET /wp-json/wp/v2/statuses.
+  observed: GET /wp-json/wp/v2/statuses/nope
+- code: rest_edge_blocked
+  status: 403
+  title: Blocked at the edge before reaching WordPress (not a WordPress error code)
+  cause: >-
+    The /wp/v2/users collection is blocked by the site's edge/WAF layer, which returns an HTML 403
+    page rather than the JSON envelope. This differs from stock WordPress, which answers
+    rest_user_cannot_view (401) in JSON. Requests with an absent or default User-Agent are also
+    answered 403 at the origin.
+  remediation: >-
+    Author identity is not retrievable on this deployment. Send a normal browser User-Agent for all
+    requests and be prepared to parse an HTML body on 403 — content negotiation is not honoured for
+    this response.
+  observed: 'GET /wp-json/wp/v2/users -> 403 text/html; GET / with default UA -> 403'
+  synthetic_code: true

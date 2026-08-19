@@ -1,0 +1,188 @@
+openapi: 3.2.0
+info:
+  title: DalCor Pharmaceuticals Content API (WordPress REST API) Search API
+  version: wp/v2
+  description: Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2. It exposes DalCor's press releases (posts), the corporate and clinical-programme pages (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib History, Precision Medicine, Cardiovascular Diseases, dal-GenE, Dal-GenE-2, DAL-302 study information, Contact Us, Privacy Policy), the media library, the post categories, and cross-content search. Every collection also accepts a `wpml_language` parameter (`en`/`fr`) because the site runs WPML and publishes a French edition at /fr/. DalCor does not run a developer program and publishes no hand-authored specification; this document is a faithful derivation of the routes, parameters and defaults the site itself advertises, restricted to the read operations verified to return HTTP 200 without credentials on 2026-08-04. Write operations are registered on the same routes but are authenticated administrative endpoints, not a public API offering, and are deliberately not modelled here.
+  contact:
+    name: DalCor Pharmaceuticals
+    email: info@DalCorpharma.com
+    url: https://dalcorpharma.com/contact-us/
+  x-derived-from: https://dalcorpharma.com/wp-json/wp/v2
+  x-derived-on: '2026-08-04'
+  x-api-evangelist-note: Derived by the API Evangelist enrichment pipeline from the provider-published WordPress REST route index; not authored or endorsed by DalCor Pharmaceuticals.
+servers:
+- url: https://dalcorpharma.com/wp-json
+  description: Production
+security:
+- {}
+tags:
+- name: Search
+  description: Cross-content search
+paths:
+  /wp/v2/search:
+    get:
+      operationId: search
+      tags:
+      - Search
+      summary: Search across content types
+      description: Cross-content search returning lightweight {id, title, url, type, subtype} records. Available subtypes on this site are post, page, e-floating-buttons, elementor_library, category and post_tag.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: context
+        in: query
+        schema:
+          type: string
+          default: view
+          enum:
+          - view
+          - embed
+      - name: type
+        in: query
+        description: Limit results to items of an object type.
+        schema:
+          type: string
+          default: post
+          enum:
+          - post
+          - term
+          - post-format
+      - name: subtype
+        in: query
+        description: Limit results to items of one or more object subtypes.
+        schema:
+          type: array
+          default:
+          - any
+          items:
+            type: string
+            enum:
+            - post
+            - page
+            - e-floating-buttons
+            - elementor_library
+            - category
+            - post_tag
+            - any
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResult'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+components:
+  parameters:
+    per_page:
+      name: per_page
+      in: query
+      description: Maximum number of items to be returned in the result set.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum:
+        - en
+        - fr
+    page:
+      name: page
+      in: query
+      description: Current page of the collection.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    exclude:
+      name: exclude
+      in: query
+      description: Ensure the result set excludes specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    include:
+      name: include
+      in: query
+      description: Limit the result set to specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    search:
+      name: search
+      in: query
+      description: Limit results to those matching a string.
+      schema:
+        type: string
+  responses:
+    InvalidParam:
+      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_invalid_param
+            message: 'Invalid parameter(s): per_page'
+            data:
+              status: 400
+              params:
+                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
+  schemas:
+    Error:
+      type: object
+      description: The WordPress REST error envelope (not RFC 9457 problem+json).
+      properties:
+        code:
+          type: string
+          description: Machine-readable error slug.
+        message:
+          type: string
+          description: Human-readable message, localized to the site language.
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+            params:
+              type: object
+            details:
+              type: object
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        type:
+          type: string
+        subtype:
+          type: string
+        _links:
+          type: object
+  securitySchemes:
+    applicationPassword:
+      type: http
+      scheme: basic
+      description: WordPress Application Passwords (RFC 7617 Basic over TLS). Required only for write and administrative routes, which are out of scope for this document — every operation modelled here returns 200 anonymously.

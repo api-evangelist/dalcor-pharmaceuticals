@@ -1,0 +1,359 @@
+openapi: 3.2.0
+info:
+  title: DalCor Pharmaceuticals Content API (WordPress REST API) Pages API
+  version: wp/v2
+  description: Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2. It exposes DalCor's press releases (posts), the corporate and clinical-programme pages (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib History, Precision Medicine, Cardiovascular Diseases, dal-GenE, Dal-GenE-2, DAL-302 study information, Contact Us, Privacy Policy), the media library, the post categories, and cross-content search. Every collection also accepts a `wpml_language` parameter (`en`/`fr`) because the site runs WPML and publishes a French edition at /fr/. DalCor does not run a developer program and publishes no hand-authored specification; this document is a faithful derivation of the routes, parameters and defaults the site itself advertises, restricted to the read operations verified to return HTTP 200 without credentials on 2026-08-04. Write operations are registered on the same routes but are authenticated administrative endpoints, not a public API offering, and are deliberately not modelled here.
+  contact:
+    name: DalCor Pharmaceuticals
+    email: info@DalCorpharma.com
+    url: https://dalcorpharma.com/contact-us/
+  x-derived-from: https://dalcorpharma.com/wp-json/wp/v2
+  x-derived-on: '2026-08-04'
+  x-api-evangelist-note: Derived by the API Evangelist enrichment pipeline from the provider-published WordPress REST route index; not authored or endorsed by DalCor Pharmaceuticals.
+servers:
+- url: https://dalcorpharma.com/wp-json
+  description: Production
+security:
+- {}
+tags:
+- name: Pages
+  description: Corporate, science and clinical-trial pages
+paths:
+  /wp/v2/pages:
+    get:
+      operationId: listPages
+      tags:
+      - Pages
+      summary: List pages
+      description: Lists the corporate, science and clinical-trial pages. 17 English pages observed on 2026-08-04 (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib History, Precision Medicine for Cardiovascular Diseases, Cardiovascular Diseases, Publications, dal-GenE trial, Dal-GenE-2 trial, DAL-302 Study, Press Releases, Contact Us, Privacy Policy, Home, Walgreens Referral Program); 15 in the French edition. Hierarchical via `parent`.
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/page'
+      - $ref: '#/components/parameters/per_page'
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/after'
+      - $ref: '#/components/parameters/before'
+      - $ref: '#/components/parameters/modified_after'
+      - $ref: '#/components/parameters/modified_before'
+      - $ref: '#/components/parameters/exclude'
+      - $ref: '#/components/parameters/include'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/slug'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/embed'
+      - $ref: '#/components/parameters/wpml_language'
+      - name: orderby
+        in: query
+        schema:
+          type: string
+          default: date
+          enum:
+          - author
+          - date
+          - id
+          - include
+          - modified
+          - parent
+          - relevance
+          - slug
+          - include_slugs
+          - title
+          - menu_order
+      - name: parent
+        in: query
+        description: Limit result set to pages with particular parent IDs.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: parent_exclude
+        in: query
+        description: Exclude pages of a particular parent ID.
+        schema:
+          type: array
+          items:
+            type: integer
+      - name: menu_order
+        in: query
+        description: Limit result set to pages with a specific menu_order value.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: A page of pages
+          headers:
+            X-WP-Total:
+              $ref: '#/components/headers/X-WP-Total'
+            X-WP-TotalPages:
+              $ref: '#/components/headers/X-WP-TotalPages'
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Page'
+        '400':
+          $ref: '#/components/responses/InvalidParam'
+  /wp/v2/pages/{id}:
+    get:
+      operationId: getPage
+      tags:
+      - Pages
+      summary: Get a single page
+      security:
+      - {}
+      parameters:
+      - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/context'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/embed'
+      responses:
+        '200':
+          description: A page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+        '404':
+          $ref: '#/components/responses/InvalidPostId'
+components:
+  parameters:
+    after:
+      name: after
+      in: query
+      description: Limit response to items published after a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    slug:
+      name: slug
+      in: query
+      description: Limit the result set to items with one or more specific slugs.
+      schema:
+        type: array
+        items:
+          type: string
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum:
+        - en
+        - fr
+    before:
+      name: before
+      in: query
+      description: Limit response to items published before a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    page:
+      name: page
+      in: query
+      description: Current page of the collection.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    include:
+      name: include
+      in: query
+      description: Limit the result set to specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    context:
+      name: context
+      in: query
+      description: Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously.
+      schema:
+        type: string
+        default: view
+        enum:
+        - view
+        - embed
+        - edit
+    exclude:
+      name: exclude
+      in: query
+      description: Ensure the result set excludes specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    idPath:
+      name: id
+      in: path
+      required: true
+      description: Unique integer identifier for the object.
+      schema:
+        type: integer
+    search:
+      name: search
+      in: query
+      description: Limit results to those matching a string.
+      schema:
+        type: string
+    fields:
+      name: _fields
+      in: query
+      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
+      schema:
+        type: string
+    modified_before:
+      name: modified_before
+      in: query
+      description: Limit response to items modified before a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    modified_after:
+      name: modified_after
+      in: query
+      description: Limit response to items modified after a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    per_page:
+      name: per_page
+      in: query
+      description: Maximum number of items to be returned in the result set.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    offset:
+      name: offset
+      in: query
+      description: Offset the result set by a specific number of items.
+      schema:
+        type: integer
+    order:
+      name: order
+      in: query
+      description: Order sort attribute ascending or descending.
+      schema:
+        type: string
+        default: desc
+        enum:
+        - asc
+        - desc
+    embed:
+      name: _embed
+      in: query
+      description: Embed linked resources (featured media, terms) inline under `_embedded` instead of requiring follow-up requests.
+      schema:
+        type: string
+  responses:
+    InvalidParam:
+      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_invalid_param
+            message: 'Invalid parameter(s): per_page'
+            data:
+              status: 400
+              params:
+                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
+    InvalidPostId:
+      description: No object with that id exists or it is not public (`rest_post_invalid_id`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_post_invalid_id
+            message: Invalid post ID.
+            data:
+              status: 404
+  schemas:
+    Error:
+      type: object
+      description: The WordPress REST error envelope (not RFC 9457 problem+json).
+      properties:
+        code:
+          type: string
+          description: Machine-readable error slug.
+        message:
+          type: string
+          description: Human-readable message, localized to the site language.
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+            params:
+              type: object
+            details:
+              type: object
+    RenderedText:
+      type: object
+      properties:
+        rendered:
+          type: string
+          description: HTML, rendered for display.
+    Page:
+      type: object
+      description: A corporate, science or clinical-trial page.
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        link:
+          type: string
+          format: uri
+        title:
+          $ref: '#/components/schemas/RenderedText'
+        content:
+          $ref: '#/components/schemas/RenderedText'
+        excerpt:
+          $ref: '#/components/schemas/RenderedText'
+        parent:
+          type: integer
+        menu_order:
+          type: integer
+        featured_media:
+          type: integer
+        _links:
+          type: object
+  headers:
+    X-WP-TotalPages:
+      description: Total number of pages available.
+      schema:
+        type: integer
+    Link:
+      description: RFC 8288 web link header carrying rel="next" and rel="prev".
+      schema:
+        type: string
+    X-WP-Total:
+      description: Total number of records matching the query.
+      schema:
+        type: integer
+  securitySchemes:
+    applicationPassword:
+      type: http
+      scheme: basic
+      description: WordPress Application Passwords (RFC 7617 Basic over TLS). Required only for write and administrative routes, which are out of scope for this document — every operation modelled here returns 200 anonymously.

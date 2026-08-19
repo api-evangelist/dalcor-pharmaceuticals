@@ -1,0 +1,35 @@
+{
+  "provider": "dalcor-pharmaceuticals",
+  "sources": [
+    "dalcor-pharmaceuticals-categories-api-openapi.yml",
+    "dalcor-pharmaceuticals-comments-api-openapi.yml",
+    "dalcor-pharmaceuticals-discovery-api-openapi.yml",
+    "dalcor-pharmaceuticals-media-api-openapi.yml",
+    "dalcor-pharmaceuticals-pages-api-openapi.yml",
+    "dalcor-pharmaceuticals-posts-api-openapi.yml",
+    "dalcor-pharmaceuticals-search-api-openapi.yml"
+  ],
+  "outputs": [
+    "dalcor-pharmaceuticals-categories-api-openapi.yml",
+    "dalcor-pharmaceuticals-comments-api-openapi.yml",
+    "dalcor-pharmaceuticals-discovery-api-openapi.yml",
+    "dalcor-pharmaceuticals-media-api-openapi.yml",
+    "dalcor-pharmaceuticals-pages-api-openapi.yml",
+    "dalcor-pharmaceuticals-posts-api-openapi.yml",
+    "dalcor-pharmaceuticals-search-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "dalcor-pharmaceuticals-categories-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dalcor-pharmaceuticals-comments-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dalcor-pharmaceuticals-discovery-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dalcor-pharmaceuticals-media-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dalcor-pharmaceuticals-pages-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dalcor-pharmaceuticals-posts-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dalcor-pharmaceuticals-search-api-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": []
+}

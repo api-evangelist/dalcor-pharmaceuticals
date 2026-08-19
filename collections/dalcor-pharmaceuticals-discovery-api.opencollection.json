@@ -1,0 +1,186 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "DalCor Pharmaceuticals Content API (WordPress REST API) Discovery API",
+    "version": "wp/v2"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Discovery",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get the REST API site index",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/"
+          },
+          "docs": "Returns the site name, home URL, timezone, site icon and HAL `_links`. On dalcorpharma.com the `namespaces`, `authentication` and `routes` arrays are returned EMPTY — the root index is suppressed by the deployment. The per-namespace index at /wp/v2 is fully published, so discovery works there instead. Observed 2026-08-04."
+        },
+        {
+          "info": {
+            "name": "Get the wp/v2 namespace route index",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/wp/v2"
+          },
+          "docs": "Returns every route registered in the wp/v2 namespace with its methods, arguments (types, defaults, enums, required flags) and `_links`. 118 routes observed on 2026-08-04. This is the machine-readable contract this OpenAPI was derived from."
+        },
+        {
+          "info": {
+            "name": "List registered content types",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/wp/v2/types",
+            "params": [
+              {
+                "name": "context",
+                "value": "",
+                "type": "query",
+                "description": "Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously."
+              },
+              {
+                "name": "wpml_language",
+                "value": "",
+                "type": "query",
+                "description": "WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04)."
+              }
+            ]
+          },
+          "docs": "14 types registered on 2026-08-04 — post, page, attachment plus WordPress and Elementor editorial internals. DalCor registers no custom content types; press releases are a category on `post`."
+        },
+        {
+          "info": {
+            "name": "Get a single content type",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/wp/v2/types/:type",
+            "params": [
+              {
+                "name": "type",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "context",
+                "value": "",
+                "type": "query",
+                "description": "Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously."
+              }
+            ]
+          },
+          "docs": "Get a single content type"
+        },
+        {
+          "info": {
+            "name": "List registered taxonomies",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/wp/v2/taxonomies",
+            "params": [
+              {
+                "name": "context",
+                "value": "",
+                "type": "query",
+                "description": "Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously."
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Limit results to taxonomies associated with a specific content type."
+              }
+            ]
+          },
+          "docs": "category, post_tag, nav_menu and wp_pattern_category observed on 2026-08-04."
+        },
+        {
+          "info": {
+            "name": "Get a single taxonomy",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/wp/v2/taxonomies/:taxonomy",
+            "params": [
+              {
+                "name": "taxonomy",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "context",
+                "value": "",
+                "type": "query",
+                "description": "Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously."
+              }
+            ]
+          },
+          "docs": "Get a single taxonomy"
+        },
+        {
+          "info": {
+            "name": "List publicly queryable post statuses",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/wp/v2/statuses",
+            "params": [
+              {
+                "name": "context",
+                "value": "",
+                "type": "query",
+                "description": "Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously."
+              }
+            ]
+          },
+          "docs": "Only `publish` is exposed anonymously."
+        },
+        {
+          "info": {
+            "name": "Get the oEmbed representation of a URL on this site",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://dalcorpharma.com/wp-json/oembed/1.0/embed",
+            "params": [
+              {
+                "name": "url",
+                "value": "",
+                "type": "query",
+                "description": "The URL of the resource on this site to embed."
+              },
+              {
+                "name": "format",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "maxwidth",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "The oembed/1.0 namespace is registered and anonymously readable; the site also advertises the discovery links in its HTML head."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -16,6 +16,17 @@ description: >-
   34 countries. DalCor runs no developer program and publishes no product API; the only
   machine-readable surface it exposes is the anonymously readable WordPress REST content API behind
   dalcorpharma.com, which serves the bilingual English/French corporate site.
+deliveryModel:
+  model: unknown
+  open_source: false
+  commercial: false
+  callable_host: true
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - openapi
+  generated: '2026-08-28'
+  method: derived
 image: https://dalcorpharma.com/kicmeefo/2023/09/dalcor-logo.png
 url: https://raw.githubusercontent.com/api-evangelist/dalcor-pharmaceuticals/refs/heads/main/apis.yml
 x-type: company

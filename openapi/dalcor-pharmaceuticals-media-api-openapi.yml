@@ -102,162 +102,7 @@ paths:
         '404':
           $ref: '#/components/responses/InvalidPostId'
 components:
-  parameters:
-    after:
-      name: after
-      in: query
-      description: Limit response to items published after a given ISO 8601 date.
-      schema:
-        type: string
-        format: date-time
-    slug:
-      name: slug
-      in: query
-      description: Limit the result set to items with one or more specific slugs.
-      schema:
-        type: array
-        items:
-          type: string
-    wpml_language:
-      name: wpml_language
-      in: query
-      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
-      schema:
-        type: string
-        enum:
-        - en
-        - fr
-    before:
-      name: before
-      in: query
-      description: Limit response to items published before a given ISO 8601 date.
-      schema:
-        type: string
-        format: date-time
-    page:
-      name: page
-      in: query
-      description: Current page of the collection.
-      schema:
-        type: integer
-        default: 1
-        minimum: 1
-    include:
-      name: include
-      in: query
-      description: Limit the result set to specific IDs.
-      schema:
-        type: array
-        items:
-          type: integer
-    context:
-      name: context
-      in: query
-      description: Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously.
-      schema:
-        type: string
-        default: view
-        enum:
-        - view
-        - embed
-        - edit
-    exclude:
-      name: exclude
-      in: query
-      description: Ensure the result set excludes specific IDs.
-      schema:
-        type: array
-        items:
-          type: integer
-    idPath:
-      name: id
-      in: path
-      required: true
-      description: Unique integer identifier for the object.
-      schema:
-        type: integer
-    search:
-      name: search
-      in: query
-      description: Limit results to those matching a string.
-      schema:
-        type: string
-    fields:
-      name: _fields
-      in: query
-      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
-      schema:
-        type: string
-    per_page:
-      name: per_page
-      in: query
-      description: Maximum number of items to be returned in the result set.
-      schema:
-        type: integer
-        default: 10
-        minimum: 1
-        maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: Offset the result set by a specific number of items.
-      schema:
-        type: integer
-    order:
-      name: order
-      in: query
-      description: Order sort attribute ascending or descending.
-      schema:
-        type: string
-        default: desc
-        enum:
-        - asc
-        - desc
-  responses:
-    InvalidParam:
-      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: rest_invalid_param
-            message: 'Invalid parameter(s): per_page'
-            data:
-              status: 400
-              params:
-                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
-    InvalidPostId:
-      description: No object with that id exists or it is not public (`rest_post_invalid_id`).
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: rest_post_invalid_id
-            message: Invalid post ID.
-            data:
-              status: 404
   schemas:
-    Error:
-      type: object
-      description: The WordPress REST error envelope (not RFC 9457 problem+json).
-      properties:
-        code:
-          type: string
-          description: Machine-readable error slug.
-        message:
-          type: string
-          description: Human-readable message, localized to the site language.
-        data:
-          type: object
-          properties:
-            status:
-              type: integer
-            params:
-              type: object
-            details:
-              type: object
     MediaItem:
       type: object
       description: A media library attachment.
@@ -295,7 +140,166 @@ components:
         rendered:
           type: string
           description: HTML, rendered for display.
+    Error:
+      type: object
+      description: The WordPress REST error envelope (not RFC 9457 problem+json).
+      properties:
+        code:
+          type: string
+          description: Machine-readable error slug.
+        message:
+          type: string
+          description: Human-readable message, localized to the site language.
+        data:
+          type: object
+          properties:
+            status:
+              type: integer
+            params:
+              type: object
+            details:
+              type: object
+  responses:
+    InvalidParam:
+      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_invalid_param
+            message: 'Invalid parameter(s): per_page'
+            data:
+              status: 400
+              params:
+                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
+    InvalidPostId:
+      description: No object with that id exists or it is not public (`rest_post_invalid_id`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_post_invalid_id
+            message: Invalid post ID.
+            data:
+              status: 404
+  parameters:
+    search:
+      name: search
+      in: query
+      description: Limit results to those matching a string.
+      schema:
+        type: string
+    before:
+      name: before
+      in: query
+      description: Limit response to items published before a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    per_page:
+      name: per_page
+      in: query
+      description: Maximum number of items to be returned in the result set.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    exclude:
+      name: exclude
+      in: query
+      description: Ensure the result set excludes specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    order:
+      name: order
+      in: query
+      description: Order sort attribute ascending or descending.
+      schema:
+        type: string
+        default: desc
+        enum:
+        - asc
+        - desc
+    page:
+      name: page
+      in: query
+      description: Current page of the collection.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    after:
+      name: after
+      in: query
+      description: Limit response to items published after a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum:
+        - en
+        - fr
+    idPath:
+      name: id
+      in: path
+      required: true
+      description: Unique integer identifier for the object.
+      schema:
+        type: integer
+    fields:
+      name: _fields
+      in: query
+      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
+      schema:
+        type: string
+    include:
+      name: include
+      in: query
+      description: Limit the result set to specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    context:
+      name: context
+      in: query
+      description: Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously.
+      schema:
+        type: string
+        default: view
+        enum:
+        - view
+        - embed
+        - edit
+    slug:
+      name: slug
+      in: query
+      description: Limit the result set to items with one or more specific slugs.
+      schema:
+        type: array
+        items:
+          type: string
+    offset:
+      name: offset
+      in: query
+      description: Offset the result set by a specific number of items.
+      schema:
+        type: integer
   headers:
+    X-WP-Total:
+      description: Total number of records matching the query.
+      schema:
+        type: integer
     X-WP-TotalPages:
       description: Total number of pages available.
       schema:
@@ -304,10 +308,6 @@ components:
       description: RFC 8288 web link header carrying rel="next" and rel="prev".
       schema:
         type: string
-    X-WP-Total:
-      description: Total number of records matching the query.
-      schema:
-        type: integer
   securitySchemes:
     applicationPassword:
       type: http

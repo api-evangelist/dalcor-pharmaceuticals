@@ -149,7 +149,98 @@ paths:
         '404':
           $ref: '#/components/responses/InvalidPostId'
 components:
+  responses:
+    InvalidParam:
+      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_invalid_param
+            message: 'Invalid parameter(s): per_page'
+            data:
+              status: 400
+              params:
+                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
+    ForbiddenContext:
+      description: '`context=edit` requested anonymously (`rest_forbidden_context`).'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_forbidden_context
+            message: Sorry, you are not allowed to edit posts in this post type.
+            data:
+              status: 401
+    InvalidPostId:
+      description: No object with that id exists or it is not public (`rest_post_invalid_id`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: rest_post_invalid_id
+            message: Invalid post ID.
+            data:
+              status: 404
   parameters:
+    search:
+      name: search
+      in: query
+      description: Limit results to those matching a string.
+      schema:
+        type: string
+    modified_after:
+      name: modified_after
+      in: query
+      description: Limit response to items modified after a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
+    per_page:
+      name: per_page
+      in: query
+      description: Maximum number of items to be returned in the result set.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    exclude:
+      name: exclude
+      in: query
+      description: Ensure the result set excludes specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    order:
+      name: order
+      in: query
+      description: Order sort attribute ascending or descending.
+      schema:
+        type: string
+        default: desc
+        enum:
+        - asc
+        - desc
+    page:
+      name: page
+      in: query
+      description: Current page of the collection.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    before:
+      name: before
+      in: query
+      description: Limit response to items published before a given ISO 8601 date.
+      schema:
+        type: string
+        format: date-time
     after:
       name: after
       in: query
@@ -157,14 +248,6 @@ components:
       schema:
         type: string
         format: date-time
-    slug:
-      name: slug
-      in: query
-      description: Limit the result set to items with one or more specific slugs.
-      schema:
-        type: array
-        items:
-          type: string
     wpml_language:
       name: wpml_language
       in: query
@@ -174,21 +257,19 @@ components:
         enum:
         - en
         - fr
-    before:
-      name: before
-      in: query
-      description: Limit response to items published before a given ISO 8601 date.
-      schema:
-        type: string
-        format: date-time
-    page:
-      name: page
-      in: query
-      description: Current page of the collection.
+    idPath:
+      name: id
+      in: path
+      required: true
+      description: Unique integer identifier for the object.
       schema:
         type: integer
-        default: 1
-        minimum: 1
+    fields:
+      name: _fields
+      in: query
+      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
+      schema:
+        type: string
     include:
       name: include
       in: query
@@ -208,39 +289,26 @@ components:
         - view
         - embed
         - edit
-    exclude:
-      name: exclude
+    slug:
+      name: slug
       in: query
-      description: Ensure the result set excludes specific IDs.
+      description: Limit the result set to items with one or more specific slugs.
       schema:
         type: array
         items:
-          type: integer
-    idPath:
-      name: id
-      in: path
-      required: true
-      description: Unique integer identifier for the object.
-      schema:
-        type: integer
+          type: string
     embed:
       name: _embed
       in: query
       description: Embed linked resources (featured media, terms) inline under `_embedded` instead of requiring follow-up requests.
       schema:
         type: string
-    search:
-      name: search
+    offset:
+      name: offset
       in: query
-      description: Limit results to those matching a string.
+      description: Offset the result set by a specific number of items.
       schema:
-        type: string
-    fields:
-      name: _fields
-      in: query
-      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
-      schema:
-        type: string
+        type: integer
     modified_before:
       name: modified_before
       in: query
@@ -248,75 +316,13 @@ components:
       schema:
         type: string
         format: date-time
-    modified_after:
-      name: modified_after
-      in: query
-      description: Limit response to items modified after a given ISO 8601 date.
-      schema:
-        type: string
-        format: date-time
-    per_page:
-      name: per_page
-      in: query
-      description: Maximum number of items to be returned in the result set.
-      schema:
-        type: integer
-        default: 10
-        minimum: 1
-        maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: Offset the result set by a specific number of items.
-      schema:
-        type: integer
-    order:
-      name: order
-      in: query
-      description: Order sort attribute ascending or descending.
-      schema:
-        type: string
-        default: desc
-        enum:
-        - asc
-        - desc
-  responses:
-    InvalidParam:
-      description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: rest_invalid_param
-            message: 'Invalid parameter(s): per_page'
-            data:
-              status: 400
-              params:
-                per_page: per_page must be between 1 (inclusive) and 100 (inclusive)
-    InvalidPostId:
-      description: No object with that id exists or it is not public (`rest_post_invalid_id`).
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: rest_post_invalid_id
-            message: Invalid post ID.
-            data:
-              status: 404
-    ForbiddenContext:
-      description: '`context=edit` requested anonymously (`rest_forbidden_context`).'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: rest_forbidden_context
-            message: Sorry, you are not allowed to edit posts in this post type.
-            data:
-              status: 401
   schemas:
+    RenderedText:
+      type: object
+      properties:
+        rendered:
+          type: string
+          description: HTML, rendered for display.
     Error:
       type: object
       description: The WordPress REST error envelope (not RFC 9457 problem+json).
@@ -380,13 +386,11 @@ components:
             type: integer
         _links:
           type: object
-    RenderedText:
-      type: object
-      properties:
-        rendered:
-          type: string
-          description: HTML, rendered for display.
   headers:
+    X-WP-Total:
+      description: Total number of records matching the query.
+      schema:
+        type: integer
     X-WP-TotalPages:
       description: Total number of pages available.
       schema:
@@ -395,10 +399,6 @@ components:
       description: RFC 8288 web link header carrying rel="next" and rel="prev".
       schema:
         type: string
-    X-WP-Total:
-      description: Total number of records matching the query.
-      schema:
-        type: integer
   securitySchemes:
     applicationPassword:
       type: http

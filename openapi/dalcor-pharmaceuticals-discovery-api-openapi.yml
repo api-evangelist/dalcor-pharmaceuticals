@@ -239,19 +239,28 @@ paths:
                 type: object
 components:
   responses:
-    InvalidTaxonomy:
-      description: Invalid taxonomy (`rest_taxonomy_invalid`).
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     InvalidType:
       description: Invalid content type (`rest_type_invalid`).
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    InvalidTaxonomy:
+      description: Invalid taxonomy (`rest_taxonomy_invalid`).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum:
+        - en
+        - fr
     context:
       name: context
       in: query
@@ -263,15 +272,6 @@ components:
         - view
         - embed
         - edit
-    wpml_language:
-      name: wpml_language
-      in: query
-      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
-      schema:
-        type: string
-        enum:
-        - en
-        - fr
   schemas:
     Error:
       type: object

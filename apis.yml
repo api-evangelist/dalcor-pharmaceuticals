@@ -38,13 +38,13 @@ created: '2026-08-04'
 modified: '2026-08-04'
 tags:
 - Company
-- Pharmaceuticals
-- Biotechnology
-- Cardiovascular
-- Precision Medicine
-- Pharmacogenomics
-- Clinical Trials
-- Life Sciences
+- pharmaceuticals
+- biotechnology
+- cardiovascular
+- precision-medicine
+- pharmacogenomics
+- clinical-trials
+- life-sciences
 - content-api
 tags_raw:
 - Company

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: DalCor Pharmaceuticals Content API (WordPress REST API) Discovery API
+  title: DalCor Pharmaceuticals Content API (WordPress REST API)…
   version: wp/v2
-  description: Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2. It exposes DalCor's press releases (posts), the corporate and clinical-programme pages (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib History, Precision Medicine, Cardiovascular Diseases, dal-GenE, Dal-GenE-2, DAL-302 study information, Contact Us, Privacy Policy), the media library, the post categories, and cross-content search. Every collection also accepts a `wpml_language` parameter (`en`/`fr`) because the site runs WPML and publishes a French edition at /fr/. DalCor does not run a developer program and publishes no hand-authored specification; this document is a faithful derivation of the routes, parameters and defaults the site itself advertises, restricted to the read operations verified to return HTTP 200 without credentials on 2026-08-04. Write operations are registered on the same routes but are authenticated administrative endpoints, not a public API offering, and are deliberately not modelled here.
+  description: Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2.
   contact:
     name: DalCor Pharmaceuticals
     email: info@DalCorpharma.com
@@ -252,15 +252,6 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   parameters:
-    wpml_language:
-      name: wpml_language
-      in: query
-      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
-      schema:
-        type: string
-        enum:
-        - en
-        - fr
     context:
       name: context
       in: query
@@ -272,6 +263,15 @@ components:
         - view
         - embed
         - edit
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum:
+        - en
+        - fr
   schemas:
     Error:
       type: object

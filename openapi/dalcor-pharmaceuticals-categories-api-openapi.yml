@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: DalCor Pharmaceuticals Content API (WordPress REST API) Categories API
+  title: DalCor Pharmaceuticals Content API (WordPress REST API)…
   version: wp/v2
-  description: Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2. It exposes DalCor's press releases (posts), the corporate and clinical-programme pages (About DalCor, Management, Board of Directors, Partners, Science, Dalcetrapib History, Precision Medicine, Cardiovascular Diseases, dal-GenE, Dal-GenE-2, DAL-302 study information, Contact Us, Privacy Policy), the media library, the post categories, and cross-content search. Every collection also accepts a `wpml_language` parameter (`en`/`fr`) because the site runs WPML and publishes a French edition at /fr/. DalCor does not run a developer program and publishes no hand-authored specification; this document is a faithful derivation of the routes, parameters and defaults the site itself advertises, restricted to the read operations verified to return HTTP 200 without credentials on 2026-08-04. Write operations are registered on the same routes but are authenticated administrative endpoints, not a public API offering, and are deliberately not modelled here.
+  description: Anonymously readable content API for dalcorpharma.com, derived from the WordPress REST route index the site publishes at https://dalcorpharma.com/wp-json/wp/v2.
   contact:
     name: DalCor Pharmaceuticals
     email: info@DalCorpharma.com
@@ -113,6 +113,96 @@ paths:
         '404':
           $ref: '#/components/responses/InvalidTerm'
 components:
+  parameters:
+    idPath:
+      name: id
+      in: path
+      required: true
+      description: Unique integer identifier for the object.
+      schema:
+        type: integer
+    fields:
+      name: _fields
+      in: query
+      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
+      schema:
+        type: string
+    exclude:
+      name: exclude
+      in: query
+      description: Ensure the result set excludes specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+    slug:
+      name: slug
+      in: query
+      description: Limit the result set to items with one or more specific slugs.
+      schema:
+        type: array
+        items:
+          type: string
+    search:
+      name: search
+      in: query
+      description: Limit results to those matching a string.
+      schema:
+        type: string
+    per_page:
+      name: per_page
+      in: query
+      description: Maximum number of items to be returned in the result set.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    context:
+      name: context
+      in: query
+      description: Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously.
+      schema:
+        type: string
+        default: view
+        enum:
+        - view
+        - embed
+        - edit
+    wpml_language:
+      name: wpml_language
+      in: query
+      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
+      schema:
+        type: string
+        enum:
+        - en
+        - fr
+    page:
+      name: page
+      in: query
+      description: Current page of the collection.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    include:
+      name: include
+      in: query
+      description: Limit the result set to specific IDs.
+      schema:
+        type: array
+        items:
+          type: integer
+  headers:
+    X-WP-TotalPages:
+      description: Total number of pages available.
+      schema:
+        type: integer
+    X-WP-Total:
+      description: Total number of records matching the query.
+      schema:
+        type: integer
   responses:
     InvalidParam:
       description: A query parameter is out of range or not an allowed value (`rest_invalid_param`).
@@ -138,96 +228,6 @@ components:
             message: Term does not exist.
             data:
               status: 404
-  headers:
-    X-WP-Total:
-      description: Total number of records matching the query.
-      schema:
-        type: integer
-    X-WP-TotalPages:
-      description: Total number of pages available.
-      schema:
-        type: integer
-  parameters:
-    search:
-      name: search
-      in: query
-      description: Limit results to those matching a string.
-      schema:
-        type: string
-    include:
-      name: include
-      in: query
-      description: Limit the result set to specific IDs.
-      schema:
-        type: array
-        items:
-          type: integer
-    page:
-      name: page
-      in: query
-      description: Current page of the collection.
-      schema:
-        type: integer
-        default: 1
-        minimum: 1
-    wpml_language:
-      name: wpml_language
-      in: query
-      description: WPML language code. The site publishes an English and a French edition; `en` returns 24 posts / 17 pages and `fr` returns 6 posts / 15 pages (observed 2026-08-04).
-      schema:
-        type: string
-        enum:
-        - en
-        - fr
-    idPath:
-      name: id
-      in: path
-      required: true
-      description: Unique integer identifier for the object.
-      schema:
-        type: integer
-    per_page:
-      name: per_page
-      in: query
-      description: Maximum number of items to be returned in the result set.
-      schema:
-        type: integer
-        default: 10
-        minimum: 1
-        maximum: 100
-    exclude:
-      name: exclude
-      in: query
-      description: Ensure the result set excludes specific IDs.
-      schema:
-        type: array
-        items:
-          type: integer
-    context:
-      name: context
-      in: query
-      description: Scope under which the request is made; determines fields present in the response. `edit` requires authentication and returns 401 anonymously.
-      schema:
-        type: string
-        default: view
-        enum:
-        - view
-        - embed
-        - edit
-    fields:
-      name: _fields
-      in: query
-      description: Sparse fieldset — comma-separated list of top-level fields to return, e.g. `_fields=id,slug,title,link,date`.
-      schema:
-        type: string
-    slug:
-      name: slug
-      in: query
-      description: Limit the result set to items with one or more specific slugs.
-      schema:
-        type: array
-        items:
-          type: string
   schemas:
     Term:
       type: object

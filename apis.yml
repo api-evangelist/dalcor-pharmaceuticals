@@ -70,132 +70,20 @@ tags_raw:
 - life-sciences
 - content-api
 apis:
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-categories-api
-  name: DalCor Pharmaceuticals Categories API
-  description: Post categories
-  humanURL: https://developer.wordpress.org/rest-api/
+- aid: dalcor-pharmaceuticals:dalcorpharma-com-website-wordpress-rest
+  name: DalCor Pharmaceuticals Website (WordPress REST)
+  description: 'The public WordPress REST API (wp-json) of the DalCor Pharmaceuticals website at dalcorpharma.com:
+    the route index of the site''s content management system, catalogued as one site surface rather than
+    as separate APIs.'
   baseURL: https://dalcorpharma.com/wp-json
   tags:
-  - Categories
+  - WordPress
+  x-surface: platform-generated
   properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-categories-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-comments-api
-  name: DalCor Pharmaceuticals Comments API
-  description: Comments on posts (collection is empty on this site)
-  humanURL: https://developer.wordpress.org/rest-api/
-  baseURL: https://dalcorpharma.com/wp-json
-  tags:
-  - Comments
-  properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-comments-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-discovery-api
-  name: DalCor Pharmaceuticals Discovery API
-  description: Site index, namespace route index, content types, taxonomies and statuses
-  humanURL: https://developer.wordpress.org/rest-api/
-  baseURL: https://dalcorpharma.com/wp-json
-  tags:
-  - Discovery
-  properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-discovery-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-media-api
-  name: DalCor Pharmaceuticals Media API
-  description: Media library items (logos, poster PDFs/JPEGs, trial imagery)
-  humanURL: https://developer.wordpress.org/rest-api/
-  baseURL: https://dalcorpharma.com/wp-json
-  tags:
-  - Media
-  properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-media-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-pages-api
-  name: DalCor Pharmaceuticals Pages API
-  description: Corporate, science and clinical-trial pages
-  humanURL: https://developer.wordpress.org/rest-api/
-  baseURL: https://dalcorpharma.com/wp-json
-  tags:
-  - Pages
-  properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-pages-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-posts-api
-  name: DalCor Pharmaceuticals Posts API
-  description: DalCor press releases and corporate news
-  humanURL: https://developer.wordpress.org/rest-api/
-  baseURL: https://dalcorpharma.com/wp-json
-  tags:
-  - Posts
-  properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-posts-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
-- aid: dalcor-pharmaceuticals:dalcor-pharmaceuticals-search-api
-  name: DalCor Pharmaceuticals Search API
-  description: Cross-content search
-  humanURL: https://developer.wordpress.org/rest-api/
-  baseURL: https://dalcorpharma.com/wp-json
-  tags:
-  - Search
-  properties:
-  - type: OpenAPI
-    url: openapi/dalcor-pharmaceuticals-search-api-openapi.yml
-  - type: Authentication
-    url: authentication/dalcor-pharmaceuticals-authentication.yml
-  - type: ErrorCatalog
-    url: errors/dalcor-pharmaceuticals-problem-types.yml
-  - type: Conventions
-    url: conventions/dalcor-pharmaceuticals-conventions.yml
-  - type: DataModel
-    url: data-model/dalcor-pharmaceuticals-data-model.yml
+  - type: Documentation
+    url: https://dalcorpharma.com/wp-json
+  x-platform: wordpress
+  x-platform-surface: rest
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
